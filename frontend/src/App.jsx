@@ -5,6 +5,9 @@ import DrugForm from './components/DrugForm';
 import PredictionResult from './components/PredictionResult';
 import { Brain } from 'lucide-react';
 
+// API URL - uses environment variable in production, localhost in development
+const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
+
 function App() {
   const [result, setResult] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -16,7 +19,7 @@ function App() {
     setResult(null);
 
     try {
-      const response = await axios.post('http://127.0.0.1:8000/predict', {
+      const response = await axios.post(`${API_URL}/predict`, {
         ...data,
         use_ai_enhancement: true  // Enable AI by default
       });

@@ -1,58 +1,126 @@
-# AI Medicinal Drugs Adverse Effects Predictor
+# Vitalist - Drug Adverse Effects Predictor
 
-An advanced AI application that predicts potential side effects of medicinal drugs based on patient demographics and dosage. Built with a premium **Apple-Style Glassmorphism UI**.
+AI-powered drug safety analysis using hybrid ML + LLM system.
 
-![Project Banner](https://via.placeholder.com/1200x600?text=AI+Drug+Predictor+Glass+UI)
+![Vitalist](https://img.shields.io/badge/Version-5.0.0-blue) ![License](https://img.shields.io/badge/License-MIT-green)
 
 ## 🚀 Features
 
-- **AI-Powered Analysis**: Uses a Random Forest Classifier to predict side effects.
-- **Premium Design**:
-  - **Glassmorphism**: Frosted glass panels with `backdrop-filter`.
-  - **Mesh Gradients**: Smooth, animated background.
-  - **Interactive**: Framer Motion animations for a fluid experience.
-- **Real-time API**: FastAPI backend for instant results.
+- **Hybrid ML + LLM**: Combines curated database with Groq's Llama models
+- **Personalized Risk Scoring**: Age, medical conditions, current medications
+- **Drug Interaction Detection**: 13+ dangerous interaction patterns
+- **FDA Black Box Warnings**: Critical safety alerts
+- **Premium Glass UI**: Apple-inspired design with Framer Motion
 
-## 🛠️ Tech Stack
+## 🏗️ Project Structure
 
-- **Frontend**: React, Vite, Tailwind CSS, Framer Motion, Lucide React
-- **Backend**: Python, FastAPI, Scikit-learn, Pandas
-- **Model**: Random Forest Classifier (trained on synthetic data for demo)
-
-## 📦 Installation
-
-### 1. Clone the Repository
-```bash
-git clone <repo-url>
-cd drug-adverse-effects-predictor
+```
+Vitalist/
+├── backend/                 # FastAPI Backend
+│   ├── main.py             # API endpoints
+│   ├── model.py            # ML prediction model
+│   ├── ai_service.py       # Groq LLM integration
+│   ├── data/drug_data.csv  # Drug database (437 entries)
+│   ├── requirements.txt    # Python dependencies
+│   └── Procfile            # Deployment config
+│
+├── frontend/               # React Frontend
+│   ├── src/
+│   │   ├── App.jsx
+│   │   └── components/
+│   ├── vercel.json         # Vercel deployment config
+│   └── package.json
+│
+└── README.md
 ```
 
-### 2. Backend Setup
+## 🖥️ Local Development
+
+### Backend
 ```bash
 cd backend
 python -m venv venv
-# Windows
-venv\Scripts\activate
-# Mac/Linux
-source venv/bin/activate
-
+venv\Scripts\activate        # Windows
+source venv/bin/activate     # Linux/Mac
 pip install -r requirements.txt
 python run_server.py
 ```
 
-### 3. Frontend Setup
+### Frontend
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
 
-## 🧪 Usage
+Open http://localhost:5173
 
-1. Open `http://localhost:5173` in your browser.
-2. Enter patient details (Age, Gender) and Drug Name (e.g., *Amoxicillin*, *Ibuprofen*).
-3. Click **Predict** to see potential adverse effects with probability scores.
+## ☁️ Deployment
 
-## 📝 License
+### Backend (Railway / Render)
 
-MIT License.
+1. **Railway**:
+   - Connect your GitHub repo
+   - Set root directory to `backend`
+   - Add env variable: `GROQ_API_KEY=your_key`
+   - Deploy automatically
+
+2. **Render**:
+   - Create new Web Service
+   - Set root directory to `backend`
+   - Build Command: `pip install -r requirements.txt`
+   - Start Command: `uvicorn main:app --host 0.0.0.0 --port $PORT`
+   - Add env variable: `GROQ_API_KEY`
+
+### Frontend (Vercel)
+
+1. Import your GitHub repo to Vercel
+2. Set root directory to `frontend`
+3. Add env variable: `VITE_API_URL=https://your-backend-url.railway.app`
+4. Deploy
+
+## 🔑 Environment Variables
+
+### Backend
+| Variable | Description |
+|----------|-------------|
+| `GROQ_API_KEY` | Your Groq API key from console.groq.com |
+| `PORT` | Server port (auto-set by platforms) |
+
+### Frontend
+| Variable | Description |
+|----------|-------------|
+| `VITE_API_URL` | Backend API URL (e.g., https://api.example.com) |
+
+## 📡 API Endpoints
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/predict` | POST | ML + LLM drug analysis |
+| `/predict-ai` | POST | Pure LLM analysis |
+| `/check-interactions` | POST | Drug interaction check |
+| `/drugs` | GET | List all 85+ drugs |
+| `/drug/{name}` | GET | Get specific drug info |
+| `/api-status` | GET | Check AI availability |
+
+## 🧪 Example Request
+
+```bash
+curl -X POST https://your-api.com/predict \
+  -H "Content-Type: application/json" \
+  -d '{
+    "drug_name": "Warfarin",
+    "age": 70,
+    "current_medications": ["Aspirin"],
+    "medical_conditions": ["Heart Disease"]
+  }'
+```
+
+## 📄 License
+
+MIT License - For educational purposes only. Always consult healthcare providers.
+
+## 🙏 Credits
+
+- Groq API for LLM inference
+- SIDER database for drug side effect data
