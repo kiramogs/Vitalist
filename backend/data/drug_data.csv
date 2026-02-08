@@ -1,0 +1,438 @@
+Drug_Name,Side_Effect,Frequency,Severity,Risk_Factors
+Aspirin,Stomach Pain,Common,Mild,elderly;stomach_ulcer;nsaid_use
+Aspirin,Nausea,Common,Mild,
+Aspirin,Heartburn,Common,Mild,stomach_ulcer;gerd
+Aspirin,Bleeding,Common,Moderate,elderly;anticoagulant_use;bleeding_disorder
+Aspirin,Tinnitus,Uncommon,Mild,high_dose
+Aspirin,Allergic Reaction,Rare,Severe,asthma;aspirin_allergy
+Aspirin,Reye Syndrome,Rare,Severe,child;viral_infection
+Aspirin,GI Ulceration,Uncommon,Severe,elderly;nsaid_use;alcohol_use
+Ibuprofen,Stomach Pain,Common,Mild,elderly;stomach_ulcer
+Ibuprofen,Nausea,Common,Mild,
+Ibuprofen,Dizziness,Common,Mild,elderly
+Ibuprofen,Headache,Common,Mild,
+Ibuprofen,Rash,Uncommon,Mild,allergy_history
+Ibuprofen,Kidney Problems,Rare,Severe,kidney_disease;elderly;dehydration
+Ibuprofen,GI Bleeding,Uncommon,Severe,elderly;anticoagulant_use;nsaid_use
+Ibuprofen,Cardiovascular Events,Rare,Severe,heart_disease;long_term_use
+Ibuprofen,Hypertension,Uncommon,Moderate,hypertension;elderly
+Paracetamol,Nausea,Uncommon,Mild,
+Paracetamol,Allergic Reaction,Rare,Severe,
+Paracetamol,Liver Damage,Rare,Severe,alcohol_use;liver_disease;high_dose
+Paracetamol,Rash,Rare,Mild,allergy_history
+Paracetamol,Blood Disorders,Rare,Severe,long_term_use
+Amoxicillin,Diarrhea,Common,Mild,antibiotic_use
+Amoxicillin,Nausea,Common,Mild,
+Amoxicillin,Rash,Common,Mild,allergy_history
+Amoxicillin,Vomiting,Uncommon,Mild,
+Amoxicillin,Allergic Reaction,Uncommon,Moderate,penicillin_allergy
+Amoxicillin,Anaphylaxis,Rare,Severe,penicillin_allergy
+Amoxicillin,C. Difficile Colitis,Uncommon,Severe,elderly;hospital;antibiotic_use
+Amoxicillin,Candidiasis,Uncommon,Mild,immunocompromised;female
+Metformin,Nausea,Common,Mild,
+Metformin,Diarrhea,Common,Mild,
+Metformin,Stomach Pain,Common,Mild,
+Metformin,Lactic Acidosis,Rare,Severe,kidney_disease;liver_disease;heart_failure;alcohol_use
+Metformin,Vitamin B12 Deficiency,Uncommon,Moderate,long_term_use;elderly
+Metformin,Metallic Taste,Common,Mild,
+Metformin,Weight Loss,Uncommon,Mild,
+Atorvastatin,Muscle Pain,Common,Mild,elderly;high_dose
+Atorvastatin,Headache,Common,Mild,
+Atorvastatin,Nausea,Uncommon,Mild,
+Atorvastatin,Liver Damage,Rare,Severe,liver_disease;alcohol_use
+Atorvastatin,Rhabdomyolysis,Rare,Severe,elderly;kidney_disease;high_dose;drug_interaction
+Atorvastatin,Diabetes,Uncommon,Moderate,prediabetes;elderly
+Atorvastatin,Memory Problems,Uncommon,Mild,elderly
+Lisinopril,Cough,Common,Mild,
+Lisinopril,Dizziness,Common,Mild,elderly;dehydration
+Lisinopril,Headache,Common,Mild,
+Lisinopril,Fatigue,Common,Mild,
+Lisinopril,Hyperkalemia,Uncommon,Moderate,kidney_disease;potassium_supplements
+Lisinopril,Angioedema,Rare,Severe,black_ethnicity;ace_inhibitor_history
+Lisinopril,Hypotension,Uncommon,Moderate,elderly;dehydration;diuretic_use
+Lisinopril,Kidney Dysfunction,Uncommon,Severe,kidney_disease;bilateral_renal_artery_stenosis
+Omeprazole,Headache,Common,Mild,
+Omeprazole,Nausea,Common,Mild,
+Omeprazole,Diarrhea,Common,Mild,
+Omeprazole,Stomach Pain,Uncommon,Mild,
+Omeprazole,Vitamin B12 Deficiency,Uncommon,Moderate,long_term_use;elderly
+Omeprazole,Bone Fractures,Rare,Moderate,long_term_use;elderly;osteoporosis
+Omeprazole,C. Difficile Infection,Rare,Severe,elderly;hospital;antibiotic_use
+Omeprazole,Hypomagnesemia,Uncommon,Moderate,long_term_use;diuretic_use
+Amlodipine,Swelling,Common,Mild,
+Amlodipine,Dizziness,Common,Mild,elderly
+Amlodipine,Flushing,Common,Mild,
+Amlodipine,Headache,Common,Mild,
+Amlodipine,Fatigue,Uncommon,Mild,
+Amlodipine,Palpitations,Uncommon,Mild,
+Amlodipine,Gingival Hyperplasia,Uncommon,Mild,poor_dental_hygiene
+Losartan,Dizziness,Common,Mild,elderly
+Losartan,Fatigue,Common,Mild,
+Losartan,Hypotension,Uncommon,Moderate,elderly;dehydration
+Losartan,Hyperkalemia,Uncommon,Moderate,kidney_disease;potassium_supplements
+Losartan,Cough,Uncommon,Mild,
+Losartan,Kidney Dysfunction,Uncommon,Severe,kidney_disease
+Metoprolol,Fatigue,Common,Mild,
+Metoprolol,Dizziness,Common,Mild,elderly
+Metoprolol,Bradycardia,Common,Moderate,elderly;conduction_disorder
+Metoprolol,Cold Extremities,Common,Mild,peripheral_vascular_disease
+Metoprolol,Depression,Uncommon,Moderate,depression_history
+Metoprolol,Sleep Disturbances,Uncommon,Mild,
+Metoprolol,Bronchospasm,Uncommon,Severe,asthma;copd
+Metoprolol,Sexual Dysfunction,Uncommon,Mild,male
+Gabapentin,Dizziness,Common,Mild,elderly
+Gabapentin,Drowsiness,Common,Mild,elderly;cns_depressant_use
+Gabapentin,Fatigue,Common,Mild,
+Gabapentin,Ataxia,Common,Mild,elderly
+Gabapentin,Weight Gain,Uncommon,Mild,
+Gabapentin,Suicidal Thoughts,Rare,Severe,depression_history;psychiatric_disorder
+Gabapentin,Respiratory Depression,Rare,Severe,opioid_use;elderly;copd
+Gabapentin,Peripheral Edema,Uncommon,Mild,heart_failure
+Sertraline,Nausea,Common,Mild,
+Sertraline,Diarrhea,Common,Mild,
+Sertraline,Insomnia,Common,Mild,
+Sertraline,Drowsiness,Common,Mild,
+Sertraline,Sexual Dysfunction,Common,Moderate,male
+Sertraline,Suicidal Thoughts,Rare,Severe,young_adult;depression_history
+Sertraline,Serotonin Syndrome,Rare,Severe,maoi_use;tramadol_use;ssri_use
+Sertraline,Bleeding,Uncommon,Moderate,anticoagulant_use;nsaid_use
+Sertraline,Hyponatremia,Uncommon,Moderate,elderly;diuretic_use
+Tramadol,Nausea,Common,Mild,
+Tramadol,Dizziness,Common,Mild,elderly
+Tramadol,Constipation,Common,Mild,elderly
+Tramadol,Headache,Common,Mild,
+Tramadol,Drowsiness,Common,Mild,elderly;cns_depressant_use
+Tramadol,Seizures,Rare,Severe,seizure_history;ssri_use;high_dose
+Tramadol,Serotonin Syndrome,Rare,Severe,ssri_use;maoi_use
+Tramadol,Respiratory Depression,Rare,Severe,opioid_use;elderly;copd
+Tramadol,Dependence,Uncommon,Moderate,substance_abuse_history
+Ciprofloxacin,Nausea,Common,Mild,
+Ciprofloxacin,Diarrhea,Common,Mild,
+Ciprofloxacin,Dizziness,Common,Mild,elderly
+Ciprofloxacin,Tendon Rupture,Uncommon,Severe,elderly;steroid_use;kidney_disease
+Ciprofloxacin,Photosensitivity,Uncommon,Mild,
+Ciprofloxacin,QT Prolongation,Rare,Severe,heart_disease;electrolyte_imbalance;qt_prolonging_drug
+Ciprofloxacin,Peripheral Neuropathy,Rare,Moderate,diabetes;long_term_use
+Ciprofloxacin,C. Difficile Colitis,Uncommon,Severe,elderly;hospital;antibiotic_use
+Azithromycin,Diarrhea,Common,Mild,
+Azithromycin,Nausea,Common,Mild,
+Azithromycin,Stomach Pain,Common,Mild,
+Azithromycin,Vomiting,Uncommon,Mild,
+Azithromycin,QT Prolongation,Rare,Severe,heart_disease;electrolyte_imbalance;qt_prolonging_drug
+Azithromycin,Liver Damage,Rare,Severe,liver_disease
+Azithromycin,Hearing Loss,Rare,Moderate,elderly;high_dose
+Prednisone,Weight Gain,Common,Mild,
+Prednisone,Insomnia,Common,Mild,
+Prednisone,Mood Swings,Common,Moderate,psychiatric_disorder
+Prednisone,Increased Appetite,Common,Mild,
+Prednisone,Osteoporosis,Uncommon,Moderate,long_term_use;elderly;female
+Prednisone,Diabetes,Uncommon,Moderate,prediabetes;long_term_use
+Prednisone,Adrenal Suppression,Uncommon,Severe,long_term_use
+Prednisone,Immunosuppression,Common,Moderate,
+Prednisone,Hypertension,Uncommon,Moderate,hypertension
+Prednisone,Cataracts,Uncommon,Moderate,long_term_use;elderly
+Prednisone,Glaucoma,Uncommon,Moderate,glaucoma_history
+Levothyroxine,Tremor,Uncommon,Mild,overdose
+Levothyroxine,Weight Loss,Uncommon,Mild,overdose
+Levothyroxine,Palpitations,Uncommon,Moderate,overdose;heart_disease
+Levothyroxine,Insomnia,Uncommon,Mild,overdose
+Levothyroxine,Anxiety,Uncommon,Mild,overdose
+Levothyroxine,Atrial Fibrillation,Rare,Severe,elderly;overdose;heart_disease
+Levothyroxine,Osteoporosis,Uncommon,Moderate,long_term_overdose;elderly;female
+Warfarin,Bleeding,Common,Severe,elderly;nsaid_use;antibiotic_use
+Warfarin,Bruising,Common,Mild,
+Warfarin,Nausea,Uncommon,Mild,
+Warfarin,Skin Necrosis,Rare,Severe,protein_c_deficiency
+Warfarin,Purple Toe Syndrome,Rare,Moderate,
+Warfarin,Hemorrhagic Stroke,Rare,Severe,elderly;hypertension;high_inr
+Clopidogrel,Bleeding,Common,Moderate,nsaid_use;anticoagulant_use
+Clopidogrel,Bruising,Common,Mild,
+Clopidogrel,Diarrhea,Uncommon,Mild,
+Clopidogrel,Rash,Uncommon,Mild,
+Clopidogrel,TTP,Rare,Severe,
+Clopidogrel,GI Bleeding,Uncommon,Severe,nsaid_use;ppi_use
+Fluoxetine,Nausea,Common,Mild,
+Fluoxetine,Headache,Common,Mild,
+Fluoxetine,Insomnia,Common,Mild,
+Fluoxetine,Anxiety,Uncommon,Mild,
+Fluoxetine,Sexual Dysfunction,Common,Moderate,male
+Fluoxetine,Suicidal Thoughts,Rare,Severe,young_adult;depression_history
+Fluoxetine,Weight Changes,Uncommon,Mild,long_term_use
+Fluoxetine,Serotonin Syndrome,Rare,Severe,maoi_use;tramadol_use
+Escitalopram,Nausea,Common,Mild,
+Escitalopram,Headache,Common,Mild,
+Escitalopram,Insomnia,Common,Mild,
+Escitalopram,Drowsiness,Common,Mild,
+Escitalopram,Sexual Dysfunction,Common,Moderate,male
+Escitalopram,QT Prolongation,Rare,Severe,heart_disease;electrolyte_imbalance
+Alprazolam,Drowsiness,Common,Moderate,elderly;cns_depressant_use
+Alprazolam,Dizziness,Common,Mild,elderly
+Alprazolam,Memory Impairment,Common,Moderate,elderly
+Alprazolam,Dependence,Common,Severe,substance_abuse_history;long_term_use
+Alprazolam,Withdrawal Symptoms,Common,Severe,long_term_use
+Alprazolam,Paradoxical Reactions,Rare,Moderate,elderly;psychiatric_disorder
+Alprazolam,Respiratory Depression,Rare,Severe,opioid_use;elderly;copd
+Diazepam,Drowsiness,Common,Moderate,elderly
+Diazepam,Fatigue,Common,Mild,
+Diazepam,Ataxia,Common,Mild,elderly
+Diazepam,Dependence,Common,Severe,substance_abuse_history;long_term_use
+Diazepam,Paradoxical Reactions,Rare,Moderate,elderly
+Diazepam,Respiratory Depression,Rare,Severe,opioid_use;elderly;copd
+Zolpidem,Drowsiness,Common,Moderate,
+Zolpidem,Dizziness,Common,Mild,elderly
+Zolpidem,Headache,Common,Mild,
+Zolpidem,Complex Sleep Behaviors,Uncommon,Severe,alcohol_use;cns_depressant_use
+Zolpidem,Amnesia,Uncommon,Moderate,
+Zolpidem,Falls,Uncommon,Moderate,elderly
+Hydrocodone,Constipation,Common,Mild,elderly
+Hydrocodone,Nausea,Common,Mild,
+Hydrocodone,Drowsiness,Common,Moderate,elderly
+Hydrocodone,Dizziness,Common,Mild,elderly
+Hydrocodone,Respiratory Depression,Rare,Severe,copd;elderly;benzodiazepine_use
+Hydrocodone,Dependence,Common,Severe,substance_abuse_history
+Hydrocodone,Overdose Death,Rare,Severe,opioid_naive;high_dose;benzodiazepine_use
+Oxycodone,Constipation,Common,Mild,elderly
+Oxycodone,Nausea,Common,Mild,
+Oxycodone,Drowsiness,Common,Moderate,elderly
+Oxycodone,Dizziness,Common,Mild,elderly
+Oxycodone,Respiratory Depression,Rare,Severe,copd;elderly;benzodiazepine_use
+Oxycodone,Dependence,Common,Severe,substance_abuse_history
+Oxycodone,Overdose Death,Rare,Severe,opioid_naive;high_dose;benzodiazepine_use
+Morphine,Constipation,Common,Mild,elderly
+Morphine,Nausea,Common,Mild,
+Morphine,Drowsiness,Common,Moderate,elderly
+Morphine,Respiratory Depression,Common,Severe,copd;elderly;benzodiazepine_use
+Morphine,Dependence,Common,Severe,substance_abuse_history
+Morphine,Hypotension,Uncommon,Moderate,elderly;dehydration
+Fentanyl,Nausea,Common,Mild,
+Fentanyl,Constipation,Common,Mild,
+Fentanyl,Drowsiness,Common,Moderate,
+Fentanyl,Respiratory Depression,Common,Severe,copd;elderly;benzodiazepine_use;opioid_naive
+Fentanyl,Dependence,Common,Severe,substance_abuse_history
+Fentanyl,Overdose Death,Uncommon,Severe,opioid_naive;benzodiazepine_use
+Insulin,Hypoglycemia,Common,Moderate,elderly;kidney_disease;irregular_meals
+Insulin,Weight Gain,Common,Mild,
+Insulin,Injection Site Reactions,Common,Mild,
+Insulin,Lipodystrophy,Uncommon,Mild,same_injection_site
+Insulin,Severe Hypoglycemia,Uncommon,Severe,elderly;kidney_disease;alcohol_use
+Simvastatin,Muscle Pain,Common,Mild,elderly;high_dose
+Simvastatin,Headache,Common,Mild,
+Simvastatin,Nausea,Uncommon,Mild,
+Simvastatin,Liver Damage,Rare,Severe,liver_disease;alcohol_use
+Simvastatin,Rhabdomyolysis,Rare,Severe,elderly;kidney_disease;drug_interaction;high_dose
+Rosuvastatin,Muscle Pain,Common,Mild,elderly
+Rosuvastatin,Headache,Common,Mild,
+Rosuvastatin,Nausea,Uncommon,Mild,
+Rosuvastatin,Liver Damage,Rare,Severe,liver_disease
+Rosuvastatin,Rhabdomyolysis,Rare,Severe,elderly;kidney_disease;high_dose
+Rosuvastatin,Diabetes,Uncommon,Moderate,prediabetes
+Pantoprazole,Headache,Common,Mild,
+Pantoprazole,Diarrhea,Common,Mild,
+Pantoprazole,Nausea,Uncommon,Mild,
+Pantoprazole,Vitamin B12 Deficiency,Uncommon,Moderate,long_term_use;elderly
+Pantoprazole,Bone Fractures,Rare,Moderate,long_term_use;elderly
+Pantoprazole,C. Difficile Infection,Rare,Severe,elderly;hospital
+Esomeprazole,Headache,Common,Mild,
+Esomeprazole,Diarrhea,Common,Mild,
+Esomeprazole,Nausea,Uncommon,Mild,
+Esomeprazole,Bone Fractures,Rare,Moderate,long_term_use;elderly
+Esomeprazole,Hypomagnesemia,Uncommon,Moderate,long_term_use;diuretic_use
+Montelukast,Headache,Common,Mild,
+Montelukast,Stomach Pain,Common,Mild,
+Montelukast,Fatigue,Uncommon,Mild,
+Montelukast,Neuropsychiatric Events,Rare,Severe,psychiatric_disorder
+Montelukast,Depression,Rare,Moderate,depression_history
+Montelukast,Suicidal Thoughts,Rare,Severe,psychiatric_disorder
+Albuterol,Tremor,Common,Mild,
+Albuterol,Palpitations,Common,Mild,heart_disease
+Albuterol,Headache,Common,Mild,
+Albuterol,Nervousness,Common,Mild,
+Albuterol,Paradoxical Bronchospasm,Rare,Severe,
+Albuterol,Hypokalemia,Uncommon,Moderate,high_dose;diuretic_use
+Cetirizine,Drowsiness,Common,Mild,elderly
+Cetirizine,Dry Mouth,Common,Mild,
+Cetirizine,Fatigue,Common,Mild,
+Cetirizine,Headache,Uncommon,Mild,
+Loratadine,Headache,Uncommon,Mild,
+Loratadine,Drowsiness,Uncommon,Mild,
+Loratadine,Dry Mouth,Uncommon,Mild,
+Loratadine,Fatigue,Uncommon,Mild,
+Diphenhydramine,Drowsiness,Common,Moderate,elderly
+Diphenhydramine,Dry Mouth,Common,Mild,
+Diphenhydramine,Dizziness,Common,Mild,elderly
+Diphenhydramine,Urinary Retention,Uncommon,Moderate,elderly;prostate_enlargement
+Diphenhydramine,Confusion,Uncommon,Moderate,elderly
+Diphenhydramine,Falls,Uncommon,Moderate,elderly
+Ranitidine,Headache,Common,Mild,
+Ranitidine,Diarrhea,Uncommon,Mild,
+Ranitidine,Nausea,Uncommon,Mild,
+Ranitidine,Constipation,Uncommon,Mild,
+Famotidine,Headache,Common,Mild,
+Famotidine,Dizziness,Uncommon,Mild,
+Famotidine,Constipation,Uncommon,Mild,
+Famotidine,Diarrhea,Uncommon,Mild,
+Duloxetine,Nausea,Common,Mild,
+Duloxetine,Dry Mouth,Common,Mild,
+Duloxetine,Fatigue,Common,Mild,
+Duloxetine,Constipation,Common,Mild,
+Duloxetine,Dizziness,Common,Mild,
+Duloxetine,Sexual Dysfunction,Common,Moderate,male
+Duloxetine,Hypertension,Uncommon,Moderate,hypertension
+Duloxetine,Liver Damage,Rare,Severe,liver_disease;alcohol_use
+Duloxetine,Serotonin Syndrome,Rare,Severe,maoi_use;ssri_use
+Venlafaxine,Nausea,Common,Mild,
+Venlafaxine,Headache,Common,Mild,
+Venlafaxine,Dizziness,Common,Mild,
+Venlafaxine,Insomnia,Common,Mild,
+Venlafaxine,Hypertension,Uncommon,Moderate,hypertension;high_dose
+Venlafaxine,Sexual Dysfunction,Common,Moderate,male
+Venlafaxine,Serotonin Syndrome,Rare,Severe,maoi_use
+Venlafaxine,Discontinuation Syndrome,Common,Moderate,abrupt_discontinuation
+Bupropion,Insomnia,Common,Mild,
+Bupropion,Headache,Common,Mild,
+Bupropion,Dry Mouth,Common,Mild,
+Bupropion,Nausea,Common,Mild,
+Bupropion,Seizures,Rare,Severe,seizure_history;eating_disorder;alcohol_withdrawal;high_dose
+Bupropion,Hypertension,Uncommon,Moderate,hypertension
+Quetiapine,Drowsiness,Common,Moderate,elderly
+Quetiapine,Dizziness,Common,Mild,elderly
+Quetiapine,Weight Gain,Common,Moderate,
+Quetiapine,Dry Mouth,Common,Mild,
+Quetiapine,Metabolic Syndrome,Uncommon,Moderate,prediabetes
+Quetiapine,QT Prolongation,Rare,Severe,heart_disease;electrolyte_imbalance
+Quetiapine,Tardive Dyskinesia,Rare,Severe,long_term_use;elderly
+Quetiapine,Falls,Uncommon,Moderate,elderly
+Risperidone,Weight Gain,Common,Moderate,
+Risperidone,Drowsiness,Common,Moderate,elderly
+Risperidone,Extrapyramidal Symptoms,Common,Moderate,elderly;high_dose
+Risperidone,Hyperprolactinemia,Common,Moderate,
+Risperidone,Metabolic Syndrome,Uncommon,Moderate,
+Risperidone,Tardive Dyskinesia,Rare,Severe,long_term_use;elderly
+Risperidone,Stroke,Rare,Severe,elderly;dementia
+Olanzapine,Weight Gain,Common,Moderate,
+Olanzapine,Drowsiness,Common,Moderate,
+Olanzapine,Dry Mouth,Common,Mild,
+Olanzapine,Metabolic Syndrome,Common,Moderate,prediabetes
+Olanzapine,Diabetes,Uncommon,Moderate,prediabetes;family_history
+Olanzapine,Dyslipidemia,Common,Moderate,
+Olanzapine,Tardive Dyskinesia,Rare,Severe,long_term_use;elderly
+Aripiprazole,Nausea,Common,Mild,
+Aripiprazole,Headache,Common,Mild,
+Aripiprazole,Akathisia,Common,Moderate,
+Aripiprazole,Insomnia,Common,Mild,
+Aripiprazole,Weight Gain,Uncommon,Mild,
+Aripiprazole,Compulsive Behaviors,Rare,Moderate,
+Lamotrigine,Rash,Common,Mild,rapid_titration
+Lamotrigine,Headache,Common,Mild,
+Lamotrigine,Dizziness,Common,Mild,
+Lamotrigine,Nausea,Uncommon,Mild,
+Lamotrigine,Stevens-Johnson Syndrome,Rare,Severe,rapid_titration;valproic_acid_use
+Lamotrigine,Aseptic Meningitis,Rare,Severe,
+Valproic Acid,Nausea,Common,Mild,
+Valproic Acid,Tremor,Common,Mild,
+Valproic Acid,Hair Loss,Common,Mild,
+Valproic Acid,Weight Gain,Common,Mild,
+Valproic Acid,Liver Damage,Rare,Severe,child;liver_disease;urea_cycle_disorder
+Valproic Acid,Pancreatitis,Rare,Severe,
+Valproic Acid,Teratogenicity,Common,Severe,pregnant
+Valproic Acid,Thrombocytopenia,Uncommon,Moderate,
+Carbamazepine,Drowsiness,Common,Mild,elderly
+Carbamazepine,Dizziness,Common,Mild,elderly
+Carbamazepine,Nausea,Common,Mild,
+Carbamazepine,Rash,Uncommon,Mild,
+Carbamazepine,Aplastic Anemia,Rare,Severe,
+Carbamazepine,Stevens-Johnson Syndrome,Rare,Severe,asian_ethnicity;hla_b1502
+Carbamazepine,Hyponatremia,Uncommon,Moderate,elderly;diuretic_use
+Carbamazepine,Drug Interactions,Common,Moderate,multiple_medications
+Phenytoin,Gingival Hyperplasia,Common,Mild,poor_dental_hygiene
+Phenytoin,Nystagmus,Common,Mild,high_levels
+Phenytoin,Ataxia,Common,Mild,high_levels
+Phenytoin,Rash,Uncommon,Mild,
+Phenytoin,Stevens-Johnson Syndrome,Rare,Severe,
+Phenytoin,Osteoporosis,Uncommon,Moderate,long_term_use
+Phenytoin,Fetal Hydantoin Syndrome,Rare,Severe,pregnant
+Levetiracetam,Drowsiness,Common,Mild,
+Levetiracetam,Dizziness,Common,Mild,
+Levetiracetam,Fatigue,Common,Mild,
+Levetiracetam,Behavioral Changes,Uncommon,Moderate,psychiatric_disorder
+Levetiracetam,Aggression,Uncommon,Moderate,psychiatric_disorder;child
+Levetiracetam,Suicidal Thoughts,Rare,Severe,depression_history
+Topiramate,Paresthesia,Common,Mild,
+Topiramate,Fatigue,Common,Mild,
+Topiramate,Weight Loss,Common,Mild,
+Topiramate,Cognitive Impairment,Common,Moderate,elderly
+Topiramate,Kidney Stones,Uncommon,Moderate,dehydration;family_history
+Topiramate,Metabolic Acidosis,Uncommon,Moderate,
+Topiramate,Glaucoma,Rare,Severe,
+Clonazepam,Drowsiness,Common,Moderate,elderly
+Clonazepam,Dizziness,Common,Mild,elderly
+Clonazepam,Ataxia,Common,Mild,elderly
+Clonazepam,Dependence,Common,Severe,substance_abuse_history;long_term_use
+Clonazepam,Depression,Uncommon,Moderate,depression_history
+Clonazepam,Respiratory Depression,Rare,Severe,opioid_use;elderly;copd
+Pregabalin,Dizziness,Common,Mild,elderly
+Pregabalin,Drowsiness,Common,Mild,elderly
+Pregabalin,Weight Gain,Common,Moderate,
+Pregabalin,Peripheral Edema,Common,Mild,heart_failure
+Pregabalin,Blurred Vision,Uncommon,Mild,
+Pregabalin,Dependence,Uncommon,Moderate,substance_abuse_history
+Pregabalin,Angioedema,Rare,Severe,ace_inhibitor_use
+Naproxen,Stomach Pain,Common,Mild,elderly;stomach_ulcer
+Naproxen,Nausea,Common,Mild,
+Naproxen,Heartburn,Common,Mild,stomach_ulcer;gerd
+Naproxen,Dizziness,Uncommon,Mild,elderly
+Naproxen,Bleeding,Uncommon,Moderate,anticoagulant_use;elderly
+Naproxen,Cardiovascular Events,Rare,Severe,heart_disease;long_term_use
+Naproxen,Kidney Problems,Rare,Severe,kidney_disease;elderly;dehydration
+Meloxicam,Stomach Pain,Common,Mild,elderly;stomach_ulcer
+Meloxicam,Nausea,Common,Mild,
+Meloxicam,Diarrhea,Common,Mild,
+Meloxicam,Dizziness,Uncommon,Mild,elderly
+Meloxicam,Cardiovascular Events,Rare,Severe,heart_disease;long_term_use
+Meloxicam,GI Bleeding,Uncommon,Severe,elderly;anticoagulant_use
+Celecoxib,Stomach Pain,Common,Mild,
+Celecoxib,Diarrhea,Common,Mild,
+Celecoxib,Dyspepsia,Common,Mild,
+Celecoxib,Cardiovascular Events,Uncommon,Severe,heart_disease;long_term_use
+Celecoxib,Kidney Problems,Rare,Severe,kidney_disease;elderly
+Doxycycline,Nausea,Common,Mild,
+Doxycycline,Vomiting,Common,Mild,
+Doxycycline,Photosensitivity,Common,Moderate,sun_exposure
+Doxycycline,Esophagitis,Uncommon,Moderate,lying_down_after_dose
+Doxycycline,Tooth Discoloration,Rare,Mild,child;pregnant
+Doxycycline,C. Difficile Colitis,Uncommon,Severe,elderly;hospital
+Clindamycin,Diarrhea,Common,Mild,
+Clindamycin,Nausea,Common,Mild,
+Clindamycin,Rash,Uncommon,Mild,
+Clindamycin,C. Difficile Colitis,Uncommon,Severe,elderly;hospital;antibiotic_use
+Metronidazole,Nausea,Common,Mild,
+Metronidazole,Metallic Taste,Common,Mild,
+Metronidazole,Headache,Common,Mild,
+Metronidazole,Disulfiram Reaction,Common,Moderate,alcohol_use
+Metronidazole,Neuropathy,Rare,Moderate,long_term_use;high_dose
+Nitrofurantoin,Nausea,Common,Mild,
+Nitrofurantoin,Headache,Common,Mild,
+Nitrofurantoin,Flatulence,Common,Mild,
+Nitrofurantoin,Pulmonary Toxicity,Rare,Severe,long_term_use;elderly
+Nitrofurantoin,Peripheral Neuropathy,Rare,Moderate,kidney_disease;long_term_use
+Fluconazole,Nausea,Common,Mild,
+Fluconazole,Headache,Common,Mild,
+Fluconazole,Stomach Pain,Common,Mild,
+Fluconazole,Rash,Uncommon,Mild,
+Fluconazole,Liver Damage,Rare,Severe,liver_disease;high_dose
+Fluconazole,QT Prolongation,Rare,Severe,heart_disease;electrolyte_imbalance
+Sildenafil,Headache,Common,Mild,
+Sildenafil,Flushing,Common,Mild,
+Sildenafil,Dyspepsia,Common,Mild,
+Sildenafil,Nasal Congestion,Common,Mild,
+Sildenafil,Vision Changes,Uncommon,Moderate,
+Sildenafil,Priapism,Rare,Severe,sickle_cell;leukemia
+Sildenafil,Cardiovascular Events,Rare,Severe,nitrate_use;heart_disease
+Sildenafil,Sudden Hearing Loss,Rare,Severe,
+Tadalafil,Headache,Common,Mild,
+Tadalafil,Dyspepsia,Common,Mild,
+Tadalafil,Back Pain,Common,Mild,
+Tadalafil,Muscle Pain,Common,Mild,
+Tadalafil,Flushing,Common,Mild,
+Tadalafil,Priapism,Rare,Severe,sickle_cell;leukemia
+Tadalafil,Cardiovascular Events,Rare,Severe,nitrate_use;heart_disease
