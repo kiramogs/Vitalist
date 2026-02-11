@@ -16,8 +16,8 @@ load_dotenv(os.path.join(os.path.dirname(__file__), '.env'))
 # Initialize Groq client
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
 
-# Model configuration - using GPT-OSS-120B for maximum precision
-PRIMARY_MODEL = "meta-llama/llama-4-scout-17b-16e-instruct"  # Fast, capable model
+# Model configuration - OpenAI GPT-OSS-120B (production model on Groq)
+PRIMARY_MODEL = "openai/gpt-oss-120b"  # 120B param flagship model
 FALLBACK_MODEL = "llama-3.3-70b-versatile"  # Fallback
 
 
