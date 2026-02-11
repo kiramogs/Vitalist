@@ -170,10 +170,10 @@ const PredictionResult = ({ results, interactions, personalized, userRiskFactors
                                 animate={{ x: 0, opacity: 1 }}
                                 transition={{ delay: 0.1 + (index * 0.05) }}
                                 className={`p-4 rounded-2xl border transition-all ${isHighRisk
-                                        ? 'bg-red-500/15 border-red-500/30'
-                                        : isMediumRisk
-                                            ? 'bg-amber-500/10 border-amber-500/20'
-                                            : 'bg-white/5 border-white/10'
+                                    ? 'bg-red-500/15 border-red-500/30'
+                                    : isMediumRisk
+                                        ? 'bg-amber-500/10 border-amber-500/20'
+                                        : 'bg-white/5 border-white/10'
                                     }`}
                             >
                                 <div className="flex items-start justify-between">
@@ -345,9 +345,7 @@ const PredictionResult = ({ results, interactions, personalized, userRiskFactors
                 </motion.div>
             )}
 
-            <p className="text-white/25 text-xs text-center">
-                For educational purposes only. Always consult a healthcare provider.
-            </p>
+
         </motion.div>
     );
 };
