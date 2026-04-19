@@ -50,9 +50,12 @@ function App() {
             className="text-5xl md:text-6xl font-bold text-white tracking-tight"
           >
             <span className="bg-gradient-to-r from-purple-200 via-cyan-200 to-purple-200 bg-clip-text text-transparent">
-              Vitalist
+              NIROG
             </span>
           </motion.h1>
+          <p className="mt-4 text-sm md:text-base text-white/55 tracking-[0.2em] uppercase">
+            Profile-Aware Drug Safety Intelligence
+          </p>
         </header>
 
         <main className="w-full flex flex-col items-center gap-6">

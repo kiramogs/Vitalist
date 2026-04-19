@@ -5,10 +5,14 @@ Uses openai/gpt-oss-120b for maximum precision.
 """
 import os
 from dotenv import load_dotenv
-from groq import Groq
 import json
 from typing import Optional, List, Dict
 import re
+
+try:
+    from groq import Groq
+except ImportError:
+    Groq = None
 
 # Load environment variables from .env file
 load_dotenv(os.path.join(os.path.dirname(__file__), '.env'))
@@ -21,11 +25,15 @@ PRIMARY_MODEL = "openai/gpt-oss-120b"  # 120B param flagship model
 FALLBACK_MODEL = "llama-3.3-70b-versatile"  # Fallback
 
 
+def is_groq_available() -> bool:
+    return Groq is not None and bool(GROQ_API_KEY or os.getenv("GROQ_API_KEY"))
+
+
 def get_groq_client():
     """Get Groq client with API key."""
-    api_key = GROQ_API_KEY or os.getenv("GROQ_API_KEY")
-    if not api_key:
+    if not is_groq_available():
         return None
+    api_key = GROQ_API_KEY or os.getenv("GROQ_API_KEY")
     return Groq(api_key=api_key)
 
 

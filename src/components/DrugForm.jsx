@@ -78,8 +78,8 @@ const DrugForm = ({ onPredict, isLoading }) => {
                     <Activity className="w-6 h-6 text-white" />
                 </div>
                 <div>
-                    <h2 className="text-2xl font-semibold text-white tracking-tight">Drug Analysis</h2>
-                    <p className="text-white/40 text-sm">Personalized risk assessment</p>
+                    <h2 className="text-2xl font-semibold text-white tracking-tight">NIROG Analysis</h2>
+                    <p className="text-white/40 text-sm">Expanded profile-aware risk assessment</p>
                 </div>
             </div>
 

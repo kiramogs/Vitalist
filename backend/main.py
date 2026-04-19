@@ -1,24 +1,33 @@
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
-from typing import Optional, List
-from model import load_model, get_drug_side_effects, train_model, check_drug_interactions
-from ai_service import (
-    analyze_drug_with_llm, 
-    check_drug_interactions_llm, 
-    get_drug_info_llm,
-    merge_ml_and_llm_predictions
-)
 import os
-from fastapi.middleware.cors import CORSMiddleware
+from typing import List, Optional
+
 import pandas as pd
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+
+from ai_service import (
+    analyze_drug_with_llm,
+    check_drug_interactions_llm,
+    get_drug_info_llm,
+    is_groq_available,
+    merge_ml_and_llm_predictions,
+)
+from model import (
+    MODEL_PATH,
+    check_drug_interactions,
+    get_drug_side_effects,
+    get_model_metadata,
+    train_model,
+)
+
 
 app = FastAPI(
-    title="Drug Adverse Effects Predictor API",
-    description="Precision drug safety prediction with hybrid ML + LLM integration",
-    version="5.0.0"
+    title="NIROG API",
+    description="Profile-aware drug safety prediction with hybrid ML + LLM integration",
+    version="5.0.0",
 )
 
-# Enable CORS for frontend
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -30,20 +39,24 @@ app.add_middleware(
 
 @app.on_event("startup")
 def startup_event():
-    """Initialize model on startup."""
-    model_path = os.path.join(os.path.dirname(__file__), "medicine_model.pkl")
-    if not os.path.exists(model_path):
+    """Initialize the trained model on startup."""
+    if not os.path.exists(MODEL_PATH):
         print("Model not found. Training now...")
         train_model()
     else:
+        metadata = get_model_metadata()
         print("Model loaded successfully.")
-    
-    # Check for Groq API key
-    if os.getenv("GROQ_API_KEY"):
-        print("✓ Groq API key found - LLM enhancement ENABLED")
+        print(f"  Strategy: {metadata.get('training_strategy', 'unknown')}")
+        print(
+            f"  Samples: {metadata.get('generated_samples', 'n/a')}, "
+            f"CV ROC-AUC: {metadata.get('cv_roc_auc', 0):.4f}"
+        )
+
+    if is_groq_available():
+        print("Groq API key found - LLM enhancement ENABLED")
         print("  Using: Llama 4 Scout / Llama 3.3 70B")
     else:
-        print("⚠ GROQ_API_KEY not set. ML-only mode active.")
+        print("Groq client unavailable. ML-only mode active.")
 
 
 class DrugQuery(BaseModel):
@@ -68,16 +81,15 @@ class InteractionCheckRequest(BaseModel):
 @app.post("/predict")
 def predict(data: DrugQuery):
     """
-    Precision drug adverse effect prediction with integrated ML + LLM analysis.
-    
+    NIROG drug adverse effect prediction with integrated ML + LLM analysis.
+
     The system:
-    1. Queries the ML model for baseline predictions from our curated database
-    2. Sends patient profile + ML predictions to LLM for validation and enhancement
-    3. Merges both sources with weighted averaging for maximum accuracy
-    4. Adds LLM-only predictions that ML may have missed
+    1. Queries the profile-aware ML model for baseline predictions from our curated database
+    2. Sends patient profile + ML predictions to the LLM for validation and enhancement
+    3. Merges both sources with weighted averaging
+    4. Adds LLM-only predictions that the database-driven model may have missed
     """
     try:
-        # Step 1: Get ML model predictions
         ml_result = get_drug_side_effects(
             drug_name=data.drug_name,
             age=data.age,
@@ -87,20 +99,18 @@ def predict(data: DrugQuery):
             allergies=data.allergies,
             lifestyle=data.lifestyle,
             dosage=data.dosage,
-            duration=data.duration
+            duration=data.duration,
         )
-        
+
         ml_effects = ml_result.get("effects", [])
-        
-        # Step 2: Get ML-based drug interactions
+
         ml_interactions = []
         if data.current_medications:
             all_meds = data.current_medications + [data.drug_name]
             ml_interactions = check_drug_interactions(all_meds)
-        
-        # Step 3: Get LLM analysis with ML predictions for validation
+
         llm_analysis = None
-        if data.use_ai_enhancement and os.getenv("GROQ_API_KEY"):
+        if data.use_ai_enhancement and is_groq_available():
             llm_analysis = analyze_drug_with_llm(
                 drug_name=data.drug_name,
                 age=data.age,
@@ -112,65 +122,58 @@ def predict(data: DrugQuery):
                 lifestyle=data.lifestyle,
                 dosage=data.dosage,
                 duration=data.duration,
-                ml_predictions=ml_effects  # Pass ML predictions for LLM to validate
+                ml_predictions=ml_effects,
             )
-        
-        # Step 4: Merge ML and LLM predictions precisely
+
         if llm_analysis:
             merged_effects = merge_ml_and_llm_predictions(ml_effects, llm_analysis)
         else:
             merged_effects = [{
-                **eff,
+                **effect,
                 "source": "ML Database",
                 "onset": "Unknown",
                 "mechanism": "",
                 "patient_specific_risk": "",
                 "management": "",
-                "requires_discontinuation": False
-            } for eff in ml_effects]
-        
-        # Step 5: Get LLM interaction analysis
+                "requires_discontinuation": False,
+            } for effect in ml_effects]
+
         llm_interactions = None
-        if data.current_medications and data.use_ai_enhancement and os.getenv("GROQ_API_KEY"):
+        if data.current_medications and data.use_ai_enhancement and is_groq_available():
             all_meds = data.current_medications + [data.drug_name]
             llm_interactions = check_drug_interactions_llm(all_meds)
-        
-        # Merge interactions
+
         all_interactions = []
         seen_pairs = set()
-        
-        # Add ML interactions
-        for inter in ml_interactions:
-            drugs_key = tuple(sorted([d.lower() for d in inter.get("drugs", [])]))
+
+        for interaction in ml_interactions:
+            drugs_key = tuple(sorted([drug.lower() for drug in interaction.get("drugs", [])]))
             if drugs_key not in seen_pairs:
                 seen_pairs.add(drugs_key)
                 all_interactions.append({
-                    **inter,
-                    "source": "ML Database"
+                    **interaction,
+                    "source": "ML Database",
                 })
-        
-        # Add LLM interactions
+
         if llm_interactions and "interactions" in llm_interactions:
-            for inter in llm_interactions.get("interactions", []):
-                drugs = inter.get("drugs", [])
-                drugs_key = tuple(sorted([d.lower() for d in drugs]))
+            for interaction in llm_interactions.get("interactions", []):
+                drugs = interaction.get("drugs", [])
+                drugs_key = tuple(sorted([drug.lower() for drug in drugs]))
                 if drugs_key not in seen_pairs:
                     seen_pairs.add(drugs_key)
                     all_interactions.append({
                         "drugs": drugs,
-                        "warning": f"{inter.get('clinical_effect', '')}",
-                        "mechanism": inter.get("mechanism", ""),
-                        "severity": inter.get("severity", "Moderate"),
-                        "management": inter.get("management", ""),
-                        "evidence_level": inter.get("evidence_level", ""),
-                        "source": "AI Analysis"
+                        "warning": interaction.get("clinical_effect", ""),
+                        "mechanism": interaction.get("mechanism", ""),
+                        "severity": interaction.get("severity", "Moderate"),
+                        "management": interaction.get("management", ""),
+                        "evidence_level": interaction.get("evidence_level", ""),
+                        "source": "AI Analysis",
                     })
-        
-        # Sort interactions by severity
+
         severity_order = {"Contraindicated": 0, "Major": 1, "High": 1, "Moderate": 2, "Minor": 3, "Low": 4}
-        all_interactions.sort(key=lambda x: severity_order.get(x.get("severity", "Moderate"), 2))
-        
-        # Build response
+        all_interactions.sort(key=lambda item: severity_order.get(item.get("severity", "Moderate"), 2))
+
         response = {
             "drug_queried": data.drug_name,
             "drug_found": ml_result.get("drug_found"),
@@ -179,10 +182,9 @@ def predict(data: DrugQuery):
             "predictions": merged_effects,
             "interactions": all_interactions,
             "ai_enhanced": llm_analysis is not None,
-            "disclaimer": "For educational purposes only. Consult a healthcare provider."
+            "disclaimer": "For educational purposes only. Consult a healthcare provider.",
         }
-        
-        # Add comprehensive AI analysis details
+
         if llm_analysis:
             response["ai_analysis"] = {
                 "drug_class": llm_analysis.get("drug_class", ""),
@@ -192,27 +194,27 @@ def predict(data: DrugQuery):
                 "contraindications": llm_analysis.get("contraindications", {}),
                 "black_box_warnings": llm_analysis.get("black_box_warnings", []),
                 "monitoring_parameters": llm_analysis.get("monitoring_parameters", []),
-                "overall_risk_assessment": llm_analysis.get("overall_risk_assessment", {})
+                "overall_risk_assessment": llm_analysis.get("overall_risk_assessment", {}),
             }
-            
-            # Add critical alerts if present
+
             if llm_interactions and "critical_alerts" in llm_interactions:
                 response["critical_alerts"] = llm_interactions.get("critical_alerts", [])
-        
+
         return response
-        
-    except Exception as e:
+
+    except Exception as exc:
         import traceback
+
         traceback.print_exc()
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(exc))
 
 
 @app.post("/predict-ai")
 def predict_ai_only(data: DrugQuery):
     """Get pure LLM-based drug analysis (requires GROQ_API_KEY)."""
-    if not os.getenv("GROQ_API_KEY"):
-        raise HTTPException(status_code=400, detail="GROQ_API_KEY not set")
-    
+    if not is_groq_available():
+        raise HTTPException(status_code=400, detail="Groq client unavailable or GROQ_API_KEY not set")
+
     try:
         llm_analysis = analyze_drug_with_llm(
             drug_name=data.drug_name,
@@ -224,20 +226,20 @@ def predict_ai_only(data: DrugQuery):
             allergies=data.allergies,
             lifestyle=data.lifestyle,
             dosage=data.dosage,
-            duration=data.duration
+            duration=data.duration,
         )
-        
+
         if not llm_analysis:
             raise HTTPException(status_code=500, detail="Failed to get AI analysis")
-        
+
         return {
             "drug_queried": data.drug_name,
             "analysis": llm_analysis,
-            "source": "Groq LLM (Llama 4 Scout / Llama 3.3 70B)"
+            "source": "Groq LLM (Llama 4 Scout / Llama 3.3 70B)",
         }
-        
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
 
 
 @app.post("/check-interactions")
@@ -245,47 +247,54 @@ def check_interactions(data: InteractionCheckRequest):
     """Check drug interactions with hybrid analysis."""
     try:
         ml_interactions = check_drug_interactions(data.medications)
-        
+
         llm_result = None
-        if data.use_ai and os.getenv("GROQ_API_KEY"):
+        if data.use_ai and is_groq_available():
             llm_result = check_drug_interactions_llm(data.medications)
-        
+
         return {
             "medications": data.medications,
             "interactions": ml_interactions,
             "ai_analysis": llm_result,
-            "ai_enhanced": llm_result is not None
+            "ai_enhanced": llm_result is not None,
         }
-        
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
 
 
 @app.get("/drug-info/{name}")
 def get_drug_info_ai(name: str):
     """Get comprehensive drug information using AI."""
-    if not os.getenv("GROQ_API_KEY"):
-        raise HTTPException(status_code=400, detail="GROQ_API_KEY not set")
-    
+    if not is_groq_available():
+        raise HTTPException(status_code=400, detail="Groq client unavailable or GROQ_API_KEY not set")
+
     try:
         info = get_drug_info_llm(name)
         if not info:
             raise HTTPException(status_code=404, detail=f"Could not get info for '{name}'")
         return {"drug_name": name, "info": info}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
 
 
 @app.get("/")
 def read_root():
     """API health check."""
-    groq_enabled = bool(os.getenv("GROQ_API_KEY"))
+    groq_enabled = is_groq_available()
+    metadata = get_model_metadata()
     return {
         "status": "running",
         "version": "5.0.0",
-        "name": "Drug Adverse Effects Predictor",
+        "name": "NIROG",
         "ai_enhancement": "enabled" if groq_enabled else "disabled",
-        "model": "Llama 4 Scout + Llama 3.3 70B" if groq_enabled else "ML Only"
+        "model": "Llama 4 Scout + Llama 3.3 70B" if groq_enabled else "ML Only",
+        "ml_training": {
+            "strategy": metadata.get("training_strategy"),
+            "samples": metadata.get("generated_samples"),
+            "cv_roc_auc": metadata.get("cv_roc_auc"),
+            "holdout_metrics": metadata.get("holdout_metrics"),
+        },
     }
 
 
@@ -294,7 +303,7 @@ def list_drugs():
     """List all drugs in the database."""
     data_path = os.path.join(os.path.dirname(__file__), "data", "drug_data.csv")
     df = pd.read_csv(data_path)
-    drugs = sorted(df['Drug_Name'].unique().tolist())
+    drugs = sorted(df["Drug_Name"].unique().tolist())
     return {"drugs": drugs, "count": len(drugs)}
 
 
@@ -303,20 +312,20 @@ def get_drug_info(name: str):
     """Get drug info from database."""
     data_path = os.path.join(os.path.dirname(__file__), "data", "drug_data.csv")
     df = pd.read_csv(data_path)
-    
+
     drug_name = name.strip().title()
-    matching = df[df['Drug_Name'].str.lower() == drug_name.lower()]
-    
+    matching = df[df["Drug_Name"].str.lower() == drug_name.lower()]
+
     if matching.empty:
-        matching = df[df['Drug_Name'].str.lower().str.contains(drug_name.lower())]
-    
+        matching = df[df["Drug_Name"].str.lower().str.contains(drug_name.lower())]
+
     if matching.empty:
         raise HTTPException(status_code=404, detail=f"Drug '{name}' not found")
-    
+
     return {
-        "drug_name": matching['Drug_Name'].iloc[0],
+        "drug_name": matching["Drug_Name"].iloc[0],
         "total_effects": len(matching),
-        "effects": matching.to_dict('records')
+        "effects": matching.to_dict("records"),
     }
 
 
@@ -328,17 +337,26 @@ def list_conditions():
             "Diabetes", "Heart Disease", "Kidney Disease", "Liver Disease",
             "Asthma", "COPD", "Hypertension", "Depression", "Anxiety",
             "Seizures", "Bleeding Disorder", "Stomach Ulcer", "GERD",
-            "Osteoporosis", "Glaucoma", "Pregnancy"
+            "Osteoporosis", "Glaucoma", "Pregnancy",
         ],
-        "lifestyle_factors": ["Alcohol Use", "Smoking"]
+        "lifestyle_factors": ["Alcohol Use", "Smoking"],
     }
 
 
 @app.get("/api-status")
 def api_status():
     """Check API status."""
+    metadata = get_model_metadata()
     return {
         "groq_api_key_set": bool(os.getenv("GROQ_API_KEY")),
-        "ai_features_available": bool(os.getenv("GROQ_API_KEY")),
-        "models": ["Llama 4 Scout 17B", "Llama 3.3 70B (fallback)"]
+        "ai_features_available": is_groq_available(),
+        "models": ["NIROG Profile Ranker", "Llama 4 Scout 17B", "Llama 3.3 70B (fallback)"],
+        "training_samples": metadata.get("generated_samples"),
+        "cv_roc_auc": metadata.get("cv_roc_auc"),
     }
+
+
+@app.get("/model-metrics")
+def model_metrics():
+    """Return stored NIROG model training metadata."""
+    return get_model_metadata()

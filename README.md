@@ -1,126 +1,98 @@
-# Vitalist - Drug Adverse Effects Predictor
+# NIROG
 
-AI-powered drug safety analysis using hybrid ML + LLM system.
+Profile-aware drug safety prediction using a curated adverse-effect dataset, a stronger ML ranking pipeline, and optional LLM enrichment through Groq.
 
-![Vitalist](https://img.shields.io/badge/Version-5.0.0-blue) ![License](https://img.shields.io/badge/License-MIT-green)
+![Version](https://img.shields.io/badge/Version-5.0.0-blue) ![License](https://img.shields.io/badge/License-MIT-green)
 
-## 🚀 Features
+## Features
 
-- **Hybrid ML + LLM**: Combines curated database with Groq's Llama models
-- **Personalized Risk Scoring**: Age, medical conditions, current medications
-- **Drug Interaction Detection**: 13+ dangerous interaction patterns
-- **FDA Black Box Warnings**: Critical safety alerts
-- **Premium Glass UI**: Apple-inspired design with Framer Motion
+- `NIROG` branding across the frontend and API
+- Profile-aware side effect scoring using age, gender, conditions, medications, allergies, dosage, and duration
+- Stronger ML training pipeline with synthetic patient-profile expansion from the curated dataset
+- Cross-validated model selection between multiple tree-based classifiers
+- Hybrid output path: curated ML predictions first, optional Groq LLM validation and enhancement second
+- Drug interaction detection with deterministic rules plus optional AI review
 
-## 🏗️ Project Structure
+## What Changed In The ML Pipeline
 
+The old backend trained a classifier but did not really use it for ranking live predictions, and it also leaked target information through `Frequency` and `Severity` during training.
+
+NIROG now:
+
+- builds a broader training matrix by generating synthetic patient-profile variants from the local curated records
+- trains a binary ranker to score whether a given drug/effect pair is relevant for a specific profile
+- benchmarks multiple ensemble models with cross-validated ROC-AUC
+- stores model metrics and exposes them through `/model-metrics`
+- blends model probability with evidence-weighted risk scoring during inference
+
+Important limitation:
+
+- the dataset is still the local curated corpus in `backend/data/drug_data.csv`
+- the "broader dataset" here means broader profile coverage generated from that corpus, not a newly imported external medical database
+- this project remains educational software and should not be treated as clinical decision support
+
+## Project Structure
+
+```text
+SEM 6 Project/
+|-- backend/
+|   |-- main.py
+|   |-- model.py
+|   |-- ai_service.py
+|   |-- data/drug_data.csv
+|   |-- requirements.txt
+|   `-- run_server.py
+|-- src/
+|   |-- App.jsx
+|   |-- index.css
+|   `-- components/
+|-- index.html
+|-- package.json
+`-- README.md
 ```
-Vitalist/
-├── backend/                 # FastAPI Backend
-│   ├── main.py             # API endpoints
-│   ├── model.py            # ML prediction model
-│   ├── ai_service.py       # Groq LLM integration
-│   ├── data/drug_data.csv  # Drug database (437 entries)
-│   ├── requirements.txt    # Python dependencies
-│   └── Procfile            # Deployment config
-│
-├── frontend/               # React Frontend
-│   ├── src/
-│   │   ├── App.jsx
-│   │   └── components/
-│   ├── vercel.json         # Vercel deployment config
-│   └── package.json
-│
-└── README.md
-```
 
-## 🖥️ Local Development
+## Local Development
 
 ### Backend
+
 ```bash
 cd backend
 python -m venv venv
-venv\Scripts\activate        # Windows
-source venv/bin/activate     # Linux/Mac
+venv\Scripts\activate
 pip install -r requirements.txt
 python run_server.py
 ```
 
 ### Frontend
+
 ```bash
-cd frontend
 npm install
 npm run dev
 ```
 
-Open http://localhost:5173
+Open `http://localhost:5173`.
 
-## ☁️ Deployment
+## API Endpoints
 
-### Backend (Railway / Render)
+- `POST /predict` - profile-aware ML prediction with optional AI enhancement
+- `POST /predict-ai` - LLM-only analysis
+- `POST /check-interactions` - interaction analysis
+- `GET /drugs` - list drugs in the curated dataset
+- `GET /drug/{name}` - fetch database entries for a drug
+- `GET /api-status` - AI and model status
+- `GET /model-metrics` - stored ML training metadata
 
-1. **Railway**:
-   - Connect your GitHub repo
-   - Set root directory to `backend`
-   - Add env variable: `GROQ_API_KEY=your_key`
-   - Deploy automatically
-
-2. **Render**:
-   - Create new Web Service
-   - Set root directory to `backend`
-   - Build Command: `pip install -r requirements.txt`
-   - Start Command: `uvicorn main:app --host 0.0.0.0 --port $PORT`
-   - Add env variable: `GROQ_API_KEY`
-
-### Frontend (Vercel)
-
-1. Import your GitHub repo to Vercel
-2. Set root directory to `frontend`
-3. Add env variable: `VITE_API_URL=https://your-backend-url.railway.app`
-4. Deploy
-
-## 🔑 Environment Variables
+## Environment Variables
 
 ### Backend
-| Variable | Description |
-|----------|-------------|
-| `GROQ_API_KEY` | Your Groq API key from console.groq.com |
-| `PORT` | Server port (auto-set by platforms) |
+
+- `GROQ_API_KEY` - enables AI enhancement
+- `PORT` - server port for deployment platforms
 
 ### Frontend
-| Variable | Description |
-|----------|-------------|
-| `VITE_API_URL` | Backend API URL (e.g., https://api.example.com) |
 
-## 📡 API Endpoints
+- `VITE_API_URL` - backend base URL
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/predict` | POST | ML + LLM drug analysis |
-| `/predict-ai` | POST | Pure LLM analysis |
-| `/check-interactions` | POST | Drug interaction check |
-| `/drugs` | GET | List all 85+ drugs |
-| `/drug/{name}` | GET | Get specific drug info |
-| `/api-status` | GET | Check AI availability |
+## License
 
-## 🧪 Example Request
-
-```bash
-curl -X POST https://your-api.com/predict \
-  -H "Content-Type: application/json" \
-  -d '{
-    "drug_name": "Warfarin",
-    "age": 70,
-    "current_medications": ["Aspirin"],
-    "medical_conditions": ["Heart Disease"]
-  }'
-```
-
-## 📄 License
-
-MIT License - For educational purposes only. Always consult healthcare providers.
-
-## 🙏 Credits
-
-- Groq API for LLM inference
-- SIDER database for drug side effect data
+MIT License. For educational purposes only. Always consult a qualified healthcare professional.
