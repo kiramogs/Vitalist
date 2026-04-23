@@ -85,6 +85,19 @@ To make sign-in and Firestore work end-to-end, enable the following in Firebase 
 1. Google Authentication in `Authentication > Sign-in method`
 2. Firestore Database in production or test mode
 3. Authorized domains for your deployed frontend URL
+4. Add local development hosts (`localhost`, `127.0.0.1`) in `Authentication > Settings > Authorized domains`
+
+### Google Sign-In Troubleshooting
+
+If you see `Google sign-in failed`, verify these in order:
+
+1. Firebase Console > `Authentication > Sign-in method` > Google = **Enabled**
+2. Firebase Console > `Authentication > Settings > Authorized domains` includes:
+   - `localhost`
+   - `127.0.0.1`
+   - your deployed domain (for example Vercel domain)
+3. Firebase project matches the config in `src/lib/firebase.js`
+4. Browser allows popups for the app URL
 
 Recommended Firestore structure used by the app:
 

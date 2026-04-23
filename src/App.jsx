@@ -19,6 +19,34 @@ import {
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
 
+function getReadableAuthError(error) {
+  const code = error?.code || '';
+
+  if (code === 'auth/popup-closed-by-user') {
+    return null;
+  }
+  if (code === 'auth/unauthorized-domain') {
+    return 'Google sign-in failed: this domain is not authorized in Firebase Auth. Add this host in Authentication > Settings > Authorized domains.';
+  }
+  if (code === 'auth/operation-not-allowed') {
+    return 'Google sign-in failed: Google provider is disabled. Enable it in Firebase Console under Authentication > Sign-in method.';
+  }
+  if (code === 'auth/popup-blocked') {
+    return 'Google sign-in failed: browser blocked the popup. Allow popups for this site and try again.';
+  }
+  if (code === 'auth/network-request-failed') {
+    return 'Google sign-in failed due to network issues. Check internet or firewall and retry.';
+  }
+  if (code === 'auth/invalid-api-key') {
+    return 'Google sign-in failed: Firebase API key is invalid. Verify your Firebase config in src/lib/firebase.js.';
+  }
+  if (code === 'auth/invalid-credential') {
+    return 'Google sign-in failed: OAuth credential is invalid. Check Firebase Web App config and Google Auth setup.';
+  }
+
+  return `Google sign-in failed (${code || 'unknown_error'}). Verify Firebase Auth Google provider, authorized domains, and web app config.`;
+}
+
 function App() {
   const [result, setResult] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -69,11 +97,12 @@ function App() {
       setError(null);
       await signInWithPopup(auth, googleProvider);
     } catch (authError) {
-      if (authError?.code === 'auth/popup-closed-by-user') {
+      const readableMessage = getReadableAuthError(authError);
+      if (!readableMessage) {
         return;
       }
       console.error(authError);
-      setError('Google sign-in failed. Please verify the Firebase Auth Google provider is enabled.');
+      setError(readableMessage);
     }
   };
 
