@@ -9,6 +9,8 @@ import {
   Ruler,
   Weight,
   ArrowRight,
+  ArrowLeft,
+  Check,
   Loader2,
 } from 'lucide-react';
 
@@ -41,16 +43,18 @@ const itemVariants = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: 'easeOut' } },
 };
 
-const HealthProfileSetup = ({ user, onComplete, isSaving }) => {
+const HealthProfileSetup = ({ user, onComplete, onCancel, isSaving, initialProfile }) => {
+  const isEditing = Boolean(initialProfile);
+
   const [form, setForm] = useState({
-    age: '',
-    gender: 'Male',
-    height: '',
-    weight: '',
-    medical_conditions: [],
-    current_medications_input: '',
-    allergies_input: '',
-    lifestyle: [],
+    age: initialProfile?.age ? String(initialProfile.age) : '',
+    gender: initialProfile?.gender || 'Male',
+    height: initialProfile?.height ? String(initialProfile.height) : '',
+    weight: initialProfile?.weight ? String(initialProfile.weight) : '',
+    medical_conditions: Array.isArray(initialProfile?.medical_conditions) ? initialProfile.medical_conditions : [],
+    current_medications_input: Array.isArray(initialProfile?.current_medications) ? initialProfile.current_medications.join(', ') : '',
+    allergies_input: Array.isArray(initialProfile?.allergies) ? initialProfile.allergies.join(', ') : '',
+    lifestyle: Array.isArray(initialProfile?.lifestyle) ? initialProfile.lifestyle : [],
   });
 
   const handleFieldChange = (event) => {
@@ -107,11 +111,13 @@ const HealthProfileSetup = ({ user, onComplete, isSaving }) => {
         <motion.div variants={itemVariants} className="text-center">
           <h1 className="text-4xl md:text-5xl font-bold tracking-tight">
             <span className="bg-gradient-to-r from-purple-200 via-cyan-200 to-purple-200 bg-clip-text text-transparent">
-              Set Up Your Profile
+              {isEditing ? 'Edit Your Profile' : 'Set Up Your Profile'}
             </span>
           </h1>
           <p className="mt-3 text-sm text-white/50 max-w-md mx-auto leading-relaxed">
-            {user?.displayName ? `Hi ${user.displayName.split(' ')[0]}, tell` : 'Tell'} us about your health so NIROG can give you personalized drug safety predictions.
+            {isEditing
+              ? 'Update your health information. Changes will apply to future analyses.'
+              : `${user?.displayName ? `Hi ${user.displayName.split(' ')[0]}, tell` : 'Tell'} us about your health so NIROG can give you personalized drug safety predictions.`}
           </p>
         </motion.div>
 
@@ -261,24 +267,41 @@ const HealthProfileSetup = ({ user, onComplete, isSaving }) => {
             </div>
 
             {/* Submit */}
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              type="submit"
-              disabled={isSaving}
-              className="glass-button w-full flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isSaving ? (
-                <>
-                  <Loader2 className="h-5 w-5 animate-spin" />
-                  Saving profile…
-                </>
-              ) : (
-                <>
-                  Continue to NIROG <ArrowRight className="w-4 h-4" />
-                </>
+            <div className={`flex ${isEditing ? 'gap-3' : ''}`}>
+              {isEditing && onCancel && (
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  type="button"
+                  onClick={onCancel}
+                  className="glass-button flex-1 flex items-center justify-center gap-2 !bg-white/5 hover:!bg-white/10"
+                >
+                  <ArrowLeft className="w-4 h-4" /> Back
+                </motion.button>
               )}
-            </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                type="submit"
+                disabled={isSaving}
+                className="glass-button flex-1 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isSaving ? (
+                  <>
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                    Saving profile…
+                  </>
+                ) : isEditing ? (
+                  <>
+                    Save Changes <Check className="w-4 h-4" />
+                  </>
+                ) : (
+                  <>
+                    Continue to NIROG <ArrowRight className="w-4 h-4" />
+                  </>
+                )}
+              </motion.button>
+            </div>
 
             <p className="text-white/25 text-xs text-center">
               You can update this information anytime from the app.

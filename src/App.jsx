@@ -8,7 +8,7 @@ import {
   signInWithPopup,
   signOut,
 } from 'firebase/auth';
-import { Brain, LogOut, Loader2 } from 'lucide-react';
+import { Brain, LogOut, Loader2, UserCog } from 'lucide-react';
 
 import DrugForm from './components/DrugForm';
 import PredictionResult from './components/PredictionResult';
@@ -106,6 +106,7 @@ function App() {
   const [medicalProfile, setMedicalProfile] = useState(null);
   const [history, setHistory] = useState([]);
   const [profileDraft, setProfileDraft] = useState({});
+  const [editingProfile, setEditingProfile] = useState(false);
 
   // Redirect auth was removed in favor of popup-only.
   // This effect is kept empty for any future initialization needs.
@@ -200,6 +201,7 @@ function App() {
     setMedicalProfile(profile);
     setProfileDraft(profile);
     setProfileReady(true);
+    setEditingProfile(false);
 
     // Try to persist to Firestore (non-critical)
     try {
@@ -354,6 +356,19 @@ function App() {
     );
   }
 
+  // Editing profile
+  if (editingProfile) {
+    return (
+      <HealthProfileSetup
+        user={user}
+        onComplete={handleProfileSetupComplete}
+        onCancel={() => setEditingProfile(false)}
+        isSaving={isSavingProfile}
+        initialProfile={medicalProfile}
+      />
+    );
+  }
+
   /* --- Authenticated app ------------------------------------------------ */
 
   return (
@@ -405,6 +420,15 @@ function App() {
                 <Loader2 className="h-3 w-3 animate-spin" /> Syncing
               </span>
             )}
+            <button
+              type="button"
+              id="edit-profile-button"
+              onClick={() => setEditingProfile(true)}
+              className="inline-flex items-center gap-1.5 text-xs text-white/40 hover:text-white/80 transition-colors"
+            >
+              <UserCog className="h-3.5 w-3.5" />
+              Edit Profile
+            </button>
             <button
               type="button"
               id="signout-button"
