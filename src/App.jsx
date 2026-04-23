@@ -161,23 +161,28 @@ function App() {
         return;
       }
 
+      // Fire-and-forget: don't let Firestore writes block auth
+      ensureUserProfile(nextUser).catch((err) =>
+        console.warn('ensureUserProfile failed (non-blocking):', err.message),
+      );
+
+      // Try to load existing profile and history
       try {
         setIsLoadingHistory(true);
-        await ensureUserProfile(nextUser);
         const [savedProfile, savedHistory] = await Promise.all([
-          loadMedicalProfile(nextUser.uid),
-          loadPredictionHistory(nextUser.uid),
+          loadMedicalProfile(nextUser.uid).catch(() => null),
+          loadPredictionHistory(nextUser.uid).catch(() => []),
         ]);
         setMedicalProfile(savedProfile);
-        setHistory(savedHistory);
+        setHistory(savedHistory || []);
         setProfileReady(Boolean(savedProfile));
         if (savedProfile) {
           setProfileDraft(savedProfile);
         }
       } catch (loadError) {
-        console.error(loadError);
-        // Even on error, let the user through if they have a cached profile
-        setProfileReady(Boolean(medicalProfile));
+        console.warn('Profile load failed (proceeding to setup):', loadError.message);
+        // Still let the user through — they'll see the health setup form
+        setProfileReady(false);
       } finally {
         setIsLoadingHistory(false);
       }
@@ -244,15 +249,18 @@ function App() {
   };
 
   const handleProfileSetupComplete = async (profile) => {
+    // Always keep the profile in memory so predictions work
+    setMedicalProfile(profile);
+    setProfileDraft(profile);
+    setProfileReady(true);
+
+    // Try to persist to Firestore (non-critical)
     try {
       setIsSavingProfile(true);
       await saveMedicalProfile(user.uid, profile);
-      setMedicalProfile(profile);
-      setProfileDraft(profile);
-      setProfileReady(true);
     } catch (saveError) {
-      console.error(saveError);
-      setError(getReadableFirestoreError(saveError));
+      console.warn('Profile save to Firestore failed:', saveError.message);
+      // Don't block the user — profile is in memory for this session
     } finally {
       setIsSavingProfile(false);
     }
