@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
-import { onAuthStateChanged, signInWithPopup, signOut } from 'firebase/auth';
+import { getRedirectResult, onAuthStateChanged, signInWithRedirect, signOut } from 'firebase/auth';
 import { Brain, Database, ShieldCheck } from 'lucide-react';
 
 import DrugForm from './components/DrugForm';
@@ -32,7 +32,7 @@ function getReadableAuthError(error) {
     return 'Google sign-in failed: Google provider is disabled. Enable it in Firebase Console under Authentication > Sign-in method.';
   }
   if (code === 'auth/popup-blocked') {
-    return 'Google sign-in failed: browser blocked the popup. Allow popups for this site and try again.';
+    return 'Google sign-in failed: browser blocked the popup. NIROG now supports redirect auth, so retry sign-in and it should continue in the same tab.';
   }
   if (code === 'auth/network-request-failed') {
     return 'Google sign-in failed due to network issues. Check internet or firewall and retry.';
@@ -58,6 +58,35 @@ function App() {
   const [medicalProfile, setMedicalProfile] = useState(null);
   const [history, setHistory] = useState([]);
   const [profileDraft, setProfileDraft] = useState({});
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const hydrateRedirectResult = async () => {
+      try {
+        const result = await getRedirectResult(auth);
+        if (!isMounted || !result?.user) {
+          return;
+        }
+        setError(null);
+      } catch (authError) {
+        if (!isMounted) {
+          return;
+        }
+        const readableMessage = getReadableAuthError(authError);
+        if (readableMessage) {
+          console.error(authError);
+          setError(readableMessage);
+        }
+      }
+    };
+
+    hydrateRedirectResult();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (nextUser) => {
@@ -95,7 +124,7 @@ function App() {
   const handleSignIn = async () => {
     try {
       setError(null);
-      await signInWithPopup(auth, googleProvider);
+      await signInWithRedirect(auth, googleProvider);
     } catch (authError) {
       const readableMessage = getReadableAuthError(authError);
       if (!readableMessage) {

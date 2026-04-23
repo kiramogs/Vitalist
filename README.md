@@ -97,7 +97,7 @@ If you see `Google sign-in failed`, verify these in order:
    - `127.0.0.1`
    - your deployed domain (for example Vercel domain)
 3. Firebase project matches the config in `src/lib/firebase.js`
-4. Browser allows popups for the app URL
+4. If popup-based auth was previously cached, retry sign-in after reload. The app now uses redirect-based Google auth to avoid popup blockers.
 
 Recommended Firestore structure used by the app:
 
