@@ -15,6 +15,7 @@ import { Brain, LogOut, Loader2 } from 'lucide-react';
 import DrugForm from './components/DrugForm';
 import PredictionResult from './components/PredictionResult';
 import LoginScreen from './components/LoginScreen';
+import HealthProfileSetup from './components/HealthProfileSetup';
 import HistoryPanel from './components/HistoryPanel';
 import { auth, googleProvider } from './lib/firebase';
 import {
@@ -127,6 +128,7 @@ function App() {
   const [error, setError] = useState(null);
   const [user, setUser] = useState(null);
   const [authReady, setAuthReady] = useState(false);
+  const [profileReady, setProfileReady] = useState(false);
   const [isSigningIn, setIsSigningIn] = useState(false);
   const [isSavingProfile, setIsSavingProfile] = useState(false);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
@@ -172,6 +174,7 @@ function App() {
       if (!nextUser) {
         setMedicalProfile(null);
         setHistory([]);
+        setProfileReady(false);
         return;
       }
 
@@ -184,11 +187,14 @@ function App() {
         ]);
         setMedicalProfile(savedProfile);
         setHistory(savedHistory);
+        setProfileReady(Boolean(savedProfile));
         if (savedProfile) {
           setProfileDraft(savedProfile);
         }
       } catch (loadError) {
         console.error(loadError);
+        // Even on error, let the user through if they have a cached profile
+        setProfileReady(Boolean(medicalProfile));
       } finally {
         setIsLoadingHistory(false);
       }
@@ -254,6 +260,21 @@ function App() {
     setHistory(savedHistory);
   };
 
+  const handleProfileSetupComplete = async (profile) => {
+    try {
+      setIsSavingProfile(true);
+      await saveMedicalProfile(user.uid, profile);
+      setMedicalProfile(profile);
+      setProfileDraft(profile);
+      setProfileReady(true);
+    } catch (saveError) {
+      console.error(saveError);
+      setError(getReadableFirestoreError(saveError));
+    } finally {
+      setIsSavingProfile(false);
+    }
+  };
+
   const handlePredict = async (data) => {
     const configError = getPredictionConfigError();
     if (configError) {
@@ -266,11 +287,32 @@ function App() {
     setError(null);
     setResult(null);
 
+    // Merge saved health profile into the prediction payload
+    const mergedData = {
+      ...data,
+      age: data.age ?? medicalProfile?.age ?? null,
+      gender: data.gender ?? medicalProfile?.gender ?? null,
+      weight: data.weight ?? medicalProfile?.weight ?? null,
+      height: data.height ?? medicalProfile?.height ?? null,
+      medical_conditions: data.medical_conditions?.length
+        ? data.medical_conditions
+        : medicalProfile?.medical_conditions ?? null,
+      current_medications: data.current_medications?.length
+        ? data.current_medications
+        : medicalProfile?.current_medications ?? null,
+      allergies: data.allergies?.length
+        ? data.allergies
+        : medicalProfile?.allergies ?? null,
+      lifestyle: data.lifestyle?.length
+        ? data.lifestyle
+        : medicalProfile?.lifestyle ?? null,
+    };
+
     let responseData = null;
 
     try {
       const response = await axios.post(`${API_URL}/predict`, {
-        ...data,
+        ...mergedData,
         use_ai_enhancement: true,
       });
 
@@ -345,6 +387,30 @@ function App() {
         isSigningIn={isSigningIn}
         error={error}
       />
+    );
+  }
+
+  // Signed in but no health profile yet — show onboarding
+  if (!profileReady && !isLoadingHistory) {
+    return (
+      <HealthProfileSetup
+        user={user}
+        onComplete={handleProfileSetupComplete}
+        isSaving={isSavingProfile}
+      />
+    );
+  }
+
+  // Still loading profile from Firestore
+  if (!profileReady && isLoadingHistory) {
+    return (
+      <div className="min-h-screen relative overflow-hidden font-sans flex items-center justify-center">
+        <div className="mesh-gradient" />
+        <div className="relative z-10 flex flex-col items-center gap-4">
+          <Loader2 className="h-10 w-10 text-purple-300 animate-spin" />
+          <p className="text-sm text-white/40 tracking-widest uppercase">Loading your profile</p>
+        </div>
+      </div>
     );
   }
 

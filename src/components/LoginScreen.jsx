@@ -1,56 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { LogIn, ShieldCheck, Brain, Database, Activity, Loader2 } from 'lucide-react';
-
-const features = [
-  {
-    icon: ShieldCheck,
-    title: 'Profile-Aware Safety',
-    description: 'Personalized risk scoring based on your age, conditions, medications, and allergies.',
-    color: 'cyan',
-  },
-  {
-    icon: Brain,
-    title: 'AI-Enhanced Analysis',
-    description: 'Hybrid ML model blended with hosted NLP inference for deeper drug insights.',
-    color: 'purple',
-  },
-  {
-    icon: Database,
-    title: 'Persistent Memory',
-    description: 'Your medical profile and prediction history stay synced across sessions.',
-    color: 'emerald',
-  },
-  {
-    icon: Activity,
-    title: 'Interaction Detection',
-    description: 'Flags dangerous drug combinations with severity-ranked alerts.',
-    color: 'pink',
-  },
-];
-
-const colorMap = {
-  cyan: {
-    iconBg: 'bg-cyan-400/15 border-cyan-300/20',
-    iconText: 'text-cyan-300',
-    glow: 'group-hover:shadow-cyan-500/10',
-  },
-  purple: {
-    iconBg: 'bg-purple-400/15 border-purple-300/20',
-    iconText: 'text-purple-300',
-    glow: 'group-hover:shadow-purple-500/10',
-  },
-  emerald: {
-    iconBg: 'bg-emerald-400/15 border-emerald-300/20',
-    iconText: 'text-emerald-300',
-    glow: 'group-hover:shadow-emerald-500/10',
-  },
-  pink: {
-    iconBg: 'bg-pink-400/15 border-pink-300/20',
-    iconText: 'text-pink-300',
-    glow: 'group-hover:shadow-pink-500/10',
-  },
-};
+import { LogIn, Loader2 } from 'lucide-react';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -74,7 +24,7 @@ const LoginScreen = ({ onSignIn, isSigningIn, error }) => {
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="relative z-10 w-full max-w-lg flex flex-col items-center gap-8"
+        className="relative z-10 w-full max-w-md flex flex-col items-center gap-8"
       >
         {/* Brand */}
         <motion.div variants={itemVariants} className="text-center">
@@ -94,9 +44,9 @@ const LoginScreen = ({ onSignIn, isSigningIn, error }) => {
           className="glass-panel w-full p-8 flex flex-col items-center gap-6"
         >
           <div className="text-center space-y-2">
-            <h2 className="text-xl font-semibold text-white">Welcome to NIROG</h2>
+            <h2 className="text-xl font-semibold text-white">Welcome</h2>
             <p className="text-sm text-white/50 leading-relaxed max-w-sm">
-              Sign in to access profile-aware drug safety predictions, save your medical history, and track past analyses.
+              Sign in to get started with personalized drug safety predictions.
             </p>
           </div>
 
@@ -129,38 +79,6 @@ const LoginScreen = ({ onSignIn, isSigningIn, error }) => {
               {error}
             </motion.p>
           )}
-
-          <p className="text-xs text-white/30 text-center">
-            Uses Google sign-in via Firebase. Your data stays in your private Firestore space.
-          </p>
-        </motion.div>
-
-        {/* Feature grid */}
-        <motion.div
-          variants={itemVariants}
-          className="w-full grid grid-cols-1 sm:grid-cols-2 gap-3"
-        >
-          {features.map((feature) => {
-            const colors = colorMap[feature.color];
-            const Icon = feature.icon;
-            return (
-              <div
-                key={feature.title}
-                className={`group glass-panel p-4 flex items-start gap-3 transition-shadow duration-300 ${colors.glow} hover:shadow-lg`}
-                style={{ borderRadius: '20px' }}
-              >
-                <div
-                  className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border ${colors.iconBg}`}
-                >
-                  <Icon className={`h-5 w-5 ${colors.iconText}`} />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-white/90">{feature.title}</p>
-                  <p className="text-xs text-white/40 leading-relaxed mt-0.5">{feature.description}</p>
-                </div>
-              </div>
-            );
-          })}
         </motion.div>
 
         {/* Footer */}

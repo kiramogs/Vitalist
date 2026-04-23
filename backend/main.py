@@ -63,6 +63,7 @@ class DrugQuery(BaseModel):
     drug_name: str
     age: Optional[int] = None
     gender: Optional[str] = None
+    height: Optional[float] = None
     weight: Optional[float] = None
     dosage: Optional[int] = None
     duration: Optional[int] = None
