@@ -1,7 +1,6 @@
 """
-AI-Enhanced Drug Analysis Service v2.0
-Hybrid ML + LLM system with precise integration using Groq API.
-Uses openai/gpt-oss-120b for maximum precision.
+NIROG hosted NLP analysis service.
+Runs on Groq with openai/gpt-oss-120b as the primary reasoning model.
 """
 import os
 from dotenv import load_dotenv
@@ -181,7 +180,7 @@ specific patient's risk factors. Add any missing critical side effects.
 ═══════════════════════════════════════════════════════════════════════════════
 """
 
-    prompt = f"""You are a board-certified clinical pharmacologist and drug safety expert with 20+ years of experience. Analyze the following drug for this specific patient with EXTREME PRECISION.
+    prompt = f"""You are the clinical NLP reasoning layer inside NIROG's hosted drug safety platform. Analyze the following drug for this specific patient with EXTREME PRECISION.
 
 ═══════════════════════════════════════════════════════════════════════════════
                               DRUG ANALYSIS REQUEST
@@ -290,6 +289,8 @@ CRITICAL INSTRUCTIONS:
 - If drug is contraindicated for this patient, state clearly
 - Include BLACK BOX warnings if applicable
 - Provide actionable clinical recommendations
+- Never refer to Groq, OpenAI, GPT, LLMs, chatbots, or external providers
+- Frame all reasoning as NIROG hosted ML-NLP output
 """
     return prompt
 
@@ -336,12 +337,13 @@ def analyze_drug_with_llm(
                 messages=[
                     {
                         "role": "system",
-                        "content": """You are an expert clinical pharmacologist providing drug safety analysis. 
+                        "content": """You are NIROG's hosted clinical NLP inference layer. 
 Your responses must be:
 1. Medically accurate and evidence-based
 2. Precise with probability estimates
 3. Patient-specific, considering all provided risk factors
 4. Formatted as valid JSON only
+5. Never mention external model vendors or that you are a chatbot
 
 Never include text outside the JSON structure. Always respond with complete, valid JSON."""
                     },
@@ -448,7 +450,7 @@ def merge_ml_and_llm_predictions(
                 "patient_specific_risk": llm_eff.get("patient_specific_risk", ""),
                 "management": llm_eff.get("management", ""),
                 "requires_discontinuation": llm_eff.get("requires_discontinuation", False),
-                "source": "ML+AI Merged",
+                "source": "Hosted ML-NLP Blend",
                 "risk_factors_matched": ml_eff.get("risk_factors_matched", [])
             })
         else:
@@ -480,7 +482,7 @@ def merge_ml_and_llm_predictions(
                 "patient_specific_risk": llm_eff.get("patient_specific_risk", ""),
                 "management": llm_eff.get("management", ""),
                 "requires_discontinuation": llm_eff.get("requires_discontinuation", False),
-                "source": "AI Analysis",
+                "source": "Hosted NLP Analysis",
                 "risk_factors_matched": []
             })
     

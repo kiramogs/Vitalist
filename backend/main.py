@@ -54,7 +54,7 @@ def startup_event():
 
     if is_groq_available():
         print("Groq API key found - LLM enhancement ENABLED")
-        print("  Using: Llama 4 Scout / Llama 3.3 70B")
+        print("  Using: openai/gpt-oss-120b via Groq")
     else:
         print("Groq client unavailable. ML-only mode active.")
 
@@ -168,7 +168,7 @@ def predict(data: DrugQuery):
                         "severity": interaction.get("severity", "Moderate"),
                         "management": interaction.get("management", ""),
                         "evidence_level": interaction.get("evidence_level", ""),
-                        "source": "AI Analysis",
+                        "source": "Hosted NLP Analysis",
                     })
 
         severity_order = {"Contraindicated": 0, "Major": 1, "High": 1, "Moderate": 2, "Minor": 3, "Low": 4}
@@ -182,6 +182,7 @@ def predict(data: DrugQuery):
             "predictions": merged_effects,
             "interactions": all_interactions,
             "ai_enhanced": llm_analysis is not None,
+            "analysis_engine": "NIROG Hosted ML-NLP" if llm_analysis is not None else "NIROG Profile Ranker",
             "disclaimer": "For educational purposes only. Consult a healthcare provider.",
         }
 
@@ -235,7 +236,7 @@ def predict_ai_only(data: DrugQuery):
         return {
             "drug_queried": data.drug_name,
             "analysis": llm_analysis,
-            "source": "Groq LLM (Llama 4 Scout / Llama 3.3 70B)",
+            "source": "NIROG Hosted ML-NLP (Groq / openai-gpt-oss-120b)",
         }
 
     except Exception as exc:
@@ -288,7 +289,8 @@ def read_root():
         "version": "5.0.0",
         "name": "NIROG",
         "ai_enhancement": "enabled" if groq_enabled else "disabled",
-        "model": "Llama 4 Scout + Llama 3.3 70B" if groq_enabled else "ML Only",
+        "model": "NIROG Hosted ML-NLP" if groq_enabled else "NIROG Profile Ranker",
+        "hosted_nlp_model": "openai/gpt-oss-120b" if groq_enabled else None,
         "ml_training": {
             "strategy": metadata.get("training_strategy"),
             "samples": metadata.get("generated_samples"),
@@ -350,7 +352,8 @@ def api_status():
     return {
         "groq_api_key_set": bool(os.getenv("GROQ_API_KEY")),
         "ai_features_available": is_groq_available(),
-        "models": ["NIROG Profile Ranker", "Llama 4 Scout 17B", "Llama 3.3 70B (fallback)"],
+        "models": ["NIROG Profile Ranker", "NIROG Hosted ML-NLP"],
+        "provider_models": ["openai/gpt-oss-120b", "llama-3.3-70b-versatile"],
         "training_samples": metadata.get("generated_samples"),
         "cv_roc_auc": metadata.get("cv_roc_auc"),
     }

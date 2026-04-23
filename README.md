@@ -1,6 +1,6 @@
 # NIROG
 
-Profile-aware drug safety prediction using a curated adverse-effect dataset, a stronger ML ranking pipeline, and optional LLM enrichment through Groq.
+Profile-aware drug safety prediction using a curated adverse-effect dataset, a stronger ML ranking pipeline, Firebase-backed patient memory, and a hosted NLP layer powered through Groq.
 
 ![Version](https://img.shields.io/badge/Version-5.0.0-blue) ![License](https://img.shields.io/badge/License-MIT-green)
 
@@ -10,8 +10,10 @@ Profile-aware drug safety prediction using a curated adverse-effect dataset, a s
 - Profile-aware side effect scoring using age, gender, conditions, medications, allergies, dosage, and duration
 - Stronger ML training pipeline with synthetic patient-profile expansion from the curated dataset
 - Cross-validated model selection between multiple tree-based classifiers
-- Hybrid output path: curated ML predictions first, optional Groq LLM validation and enhancement second
+- Hybrid output path: curated ML predictions first, hosted NLP validation and enhancement second
 - Drug interaction detection with deterministic rules plus optional AI review
+- Firebase Google sign-in plus Firestore storage for medical history and prediction history
+- Hosted ML-NLP presentation layer for Groq `openai/gpt-oss-120b` inference
 
 ## What Changed In The ML Pipeline
 
@@ -72,9 +74,44 @@ npm run dev
 
 Open `http://localhost:5173`.
 
+## Firebase Setup
+
+The frontend is already wired to this Firebase project:
+
+- `nirog-5b804`
+
+To make sign-in and Firestore work end-to-end, enable the following in Firebase Console:
+
+1. Google Authentication in `Authentication > Sign-in method`
+2. Firestore Database in production or test mode
+3. Authorized domains for your deployed frontend URL
+
+Recommended Firestore structure used by the app:
+
+- `users/{uid}` - public profile metadata
+- `users/{uid}/private/medicalProfile` - saved medical history and latest profile context
+- `users/{uid}/predictionHistory/{docId}` - prior NIROG analyses
+
+Recommended starter Firestore rules:
+
+```text
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+
+      match /{document=**} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+    }
+  }
+}
+```
+
 ## API Endpoints
 
-- `POST /predict` - profile-aware ML prediction with optional AI enhancement
+- `POST /predict` - profile-aware ML prediction with hosted NLP enhancement
 - `POST /predict-ai` - LLM-only analysis
 - `POST /check-interactions` - interaction analysis
 - `GET /drugs` - list drugs in the curated dataset
