@@ -3,11 +3,9 @@ import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   browserLocalPersistence,
-  getRedirectResult,
   onAuthStateChanged,
   setPersistence,
   signInWithPopup,
-  signInWithRedirect,
   signOut,
 } from 'firebase/auth';
 import { Brain, LogOut, Loader2 } from 'lucide-react';
@@ -74,16 +72,6 @@ function getReadableAuthError(error) {
   return `Google sign-in failed (${code || 'unknown_error'}). Verify Firebase Auth Google provider, authorized domains, and web app config.`;
 }
 
-function shouldUseRedirectAuth() {
-  if (typeof window === 'undefined') {
-    return false;
-  }
-
-  const userAgent = window.navigator.userAgent || '';
-  const isMobileDevice = /Android|iPhone|iPad|iPod|Mobile/i.test(userAgent);
-  const hasCoarsePointer = typeof window.matchMedia === 'function' && window.matchMedia('(pointer: coarse)').matches;
-  return isMobileDevice || hasCoarsePointer;
-}
 
 
 
@@ -119,37 +107,13 @@ function App() {
   const [history, setHistory] = useState([]);
   const [profileDraft, setProfileDraft] = useState({});
 
-  useEffect(() => {
-    let isMounted = true;
-
-    const hydrateRedirectResult = async () => {
-      try {
-        const result = await getRedirectResult(auth);
-        if (!isMounted || !result?.user) {
-          return;
-        }
-        setError(null);
-      } catch (authError) {
-        if (!isMounted) {
-          return;
-        }
-        const readableMessage = getReadableAuthError(authError);
-        if (readableMessage) {
-          console.error(authError);
-          setError(readableMessage);
-        }
-      }
-    };
-
-    hydrateRedirectResult();
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
+  // Redirect auth was removed in favor of popup-only.
+  // This effect is kept empty for any future initialization needs.
+  useEffect(() => {}, []);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (nextUser) => {
+      console.log('[NIROG Auth]', nextUser ? `signed in as ${nextUser.email}` : 'signed out');
       setUser(nextUser);
       setAuthReady(true);
       setIsSigningIn(false);
@@ -196,35 +160,18 @@ function App() {
       setError(null);
       setIsSigningIn(true);
       await setPersistence(auth, browserLocalPersistence);
-
-      if (shouldUseRedirectAuth()) {
-        await signInWithRedirect(auth, googleProvider);
-        return;
-      }
-
-      await signInWithPopup(auth, googleProvider);
+      const result = await signInWithPopup(auth, googleProvider);
+      console.log('[NIROG Auth] Popup sign-in succeeded:', result.user?.email);
     } catch (authError) {
-      if (authError?.code === 'auth/popup-blocked') {
-        try {
-          await signInWithRedirect(auth, googleProvider);
-          return;
-        } catch (redirectError) {
-          setIsSigningIn(false);
-          const readableRedirectError = getReadableAuthError(redirectError);
-          if (readableRedirectError) {
-            console.error(redirectError);
-            setError(readableRedirectError);
-          }
-          return;
-        }
-      }
-
+      console.error('[NIROG Auth] Sign-in error:', authError.code, authError.message);
       setIsSigningIn(false);
-      const readableMessage = getReadableAuthError(authError);
-      if (!readableMessage) {
+
+      // User intentionally closed the popup — not an error
+      if (authError?.code === 'auth/popup-closed-by-user' || authError?.code === 'auth/cancelled-popup-request') {
         return;
       }
-      console.error(authError);
+
+      const readableMessage = getReadableAuthError(authError);
       setError(readableMessage);
     }
   };
