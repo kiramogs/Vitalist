@@ -25,6 +25,7 @@ import {
   saveMedicalProfile,
   savePredictionHistory,
 } from './lib/userStore';
+import { isGroqConfigured, predictWithGroq } from './lib/groqService';
 
 function resolveApiUrl() {
   const configuredUrl = import.meta.env.VITE_API_URL?.trim();
@@ -84,25 +85,7 @@ function shouldUseRedirectAuth() {
   return isMobileDevice || hasCoarsePointer;
 }
 
-function getPredictionConfigError() {
-  if (!API_URL) {
-    const host = typeof window !== 'undefined' ? window.location.host : 'this site';
-    return `Prediction backend is not configured for ${host}. Set VITE_API_URL to your deployed NIROG backend URL.`;
-  }
 
-  if (typeof window !== 'undefined') {
-    const pageHost = window.location.hostname;
-    const isLocalPage = pageHost === 'localhost' || pageHost === '127.0.0.1';
-    const apiUrl = API_URL.toLowerCase();
-    const pointsToLocalApi = apiUrl.includes('://127.0.0.1') || apiUrl.includes('://localhost');
-
-    if (!isLocalPage && pointsToLocalApi) {
-      return 'Prediction backend is still pointing to localhost. Update VITE_API_URL in Vercel to your deployed backend URL.';
-    }
-  }
-
-  return null;
-}
 
 function getReadableFirestoreError(error) {
   const code = error?.code || '';
@@ -276,13 +259,6 @@ function App() {
   };
 
   const handlePredict = async (data) => {
-    const configError = getPredictionConfigError();
-    if (configError) {
-      setResult(null);
-      setError(configError);
-      return;
-    }
-
     setIsLoading(true);
     setError(null);
     setResult(null);
@@ -311,22 +287,31 @@ function App() {
     let responseData = null;
 
     try {
-      const response = await axios.post(`${API_URL}/predict`, {
-        ...mergedData,
-        use_ai_enhancement: true,
-      });
+      // Try the backend first if configured
+      if (API_URL) {
+        try {
+          const response = await axios.post(`${API_URL}/predict`, {
+            ...mergedData,
+            use_ai_enhancement: true,
+          });
+          responseData = response.data;
+        } catch (backendError) {
+          console.warn('Backend unavailable, falling back to Groq:', backendError.message);
+        }
+      }
 
-      responseData = response.data;
+      // Fall back to direct Groq API call
+      if (!responseData) {
+        if (!isGroqConfigured()) {
+          throw new Error('No prediction backend or Groq API key configured. Set VITE_API_URL or VITE_GROQ_API_KEY.');
+        }
+        responseData = await predictWithGroq(mergedData);
+      }
+
       setResult(responseData);
     } catch (requestError) {
       console.error(requestError);
-      if (requestError.response?.data?.detail) {
-        setError(requestError.response.data.detail);
-      } else if (requestError.code === 'ERR_NETWORK') {
-        setError(`Could not reach the NIROG backend at ${API_URL}. Make sure the backend server is running and accessible from this frontend.`);
-      } else {
-        setError('Failed to get prediction. Ensure the NIROG backend is running and VITE_API_URL points to it.');
-      }
+      setError(requestError.message || 'Failed to get prediction.');
       return;
     } finally {
       setIsLoading(false);
