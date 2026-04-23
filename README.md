@@ -86,6 +86,8 @@ To make sign-in and Firestore work end-to-end, enable the following in Firebase 
 2. Firestore Database in production or test mode
 3. Authorized domains for your deployed frontend URL
 4. Add local development hosts (`localhost`, `127.0.0.1`) in `Authentication > Settings > Authorized domains`
+5. Add your live deployment host `nirog-app.vercel.app` in `Authentication > Settings > Authorized domains`
+6. Create the Firestore database itself in `Firestore Database` before expecting medical history writes to work
 
 ### Google Sign-In Troubleshooting
 
@@ -95,9 +97,18 @@ If you see `Google sign-in failed`, verify these in order:
 2. Firebase Console > `Authentication > Settings > Authorized domains` includes:
    - `localhost`
    - `127.0.0.1`
-   - your deployed domain (for example Vercel domain)
+   - `nirog-app.vercel.app`
 3. Firebase project matches the config in `src/lib/firebase.js`
 4. If popup-based auth was previously cached, retry sign-in after reload. The app now uses redirect-based Google auth to avoid popup blockers.
+
+### Firestore Troubleshooting
+
+If NIROG shows the prediction but says medical history could not be saved:
+
+1. Open `Firebase Console > Firestore Database` and make sure the database has actually been created
+2. Confirm the project is still `nirog-5b804`
+3. Add Firestore rules that allow the signed-in user to access only their own `users/{uid}` documents
+4. Check the browser console for Firestore errors such as `permission-denied` or `failed-precondition`
 
 Recommended Firestore structure used by the app:
 
@@ -142,6 +153,14 @@ service cloud.firestore {
 ### Frontend
 
 - `VITE_API_URL` - backend base URL
+
+For Vercel, set `VITE_API_URL` in Project Settings to your deployed backend, for example:
+
+```text
+https://your-backend-service.example.com
+```
+
+If `VITE_API_URL` is missing on Vercel, the frontend cannot reach `/predict`.
 
 ## License
 

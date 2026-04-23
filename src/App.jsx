@@ -1,8 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
-import { getRedirectResult, onAuthStateChanged, signInWithRedirect, signOut } from 'firebase/auth';
-import { Brain, Database, ShieldCheck } from 'lucide-react';
+import {
+  browserLocalPersistence,
+  getRedirectResult,
+  onAuthStateChanged,
+  setPersistence,
+  signInWithPopup,
+  signInWithRedirect,
+  signOut,
+} from 'firebase/auth';
+import { Brain } from 'lucide-react';
 
 import DrugForm from './components/DrugForm';
 import PredictionResult from './components/PredictionResult';
@@ -17,16 +25,33 @@ import {
   savePredictionHistory,
 } from './lib/userStore';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
+function resolveApiUrl() {
+  const configuredUrl = import.meta.env.VITE_API_URL?.trim();
+  if (configuredUrl) {
+    return configuredUrl.replace(/\/$/, '');
+  }
+
+  if (typeof window !== 'undefined') {
+    const host = window.location.hostname;
+    if (host === 'localhost' || host === '127.0.0.1') {
+      return 'http://127.0.0.1:8000';
+    }
+  }
+
+  return '';
+}
+
+const API_URL = resolveApiUrl();
 
 function getReadableAuthError(error) {
   const code = error?.code || '';
+  const host = typeof window !== 'undefined' ? window.location.host : 'this domain';
 
   if (code === 'auth/popup-closed-by-user') {
     return null;
   }
   if (code === 'auth/unauthorized-domain') {
-    return 'Google sign-in failed: this domain is not authorized in Firebase Auth. Add this host in Authentication > Settings > Authorized domains.';
+    return `Google sign-in failed: ${host} is not authorized in Firebase Auth. Add this exact host in Firebase Console > Authentication > Settings > Authorized domains.`;
   }
   if (code === 'auth/operation-not-allowed') {
     return 'Google sign-in failed: Google provider is disabled. Enable it in Firebase Console under Authentication > Sign-in method.';
@@ -47,12 +72,61 @@ function getReadableAuthError(error) {
   return `Google sign-in failed (${code || 'unknown_error'}). Verify Firebase Auth Google provider, authorized domains, and web app config.`;
 }
 
+function shouldUseRedirectAuth() {
+  if (typeof window === 'undefined') {
+    return false;
+  }
+
+  const userAgent = window.navigator.userAgent || '';
+  const isMobileDevice = /Android|iPhone|iPad|iPod|Mobile/i.test(userAgent);
+  const hasCoarsePointer = typeof window.matchMedia === 'function' && window.matchMedia('(pointer: coarse)').matches;
+  return isMobileDevice || hasCoarsePointer;
+}
+
+function getPredictionConfigError() {
+  if (!API_URL) {
+    const host = typeof window !== 'undefined' ? window.location.host : 'this site';
+    return `Prediction backend is not configured for ${host}. Set VITE_API_URL to your deployed NIROG backend URL.`;
+  }
+
+  if (typeof window !== 'undefined') {
+    const pageHost = window.location.hostname;
+    const isLocalPage = pageHost === 'localhost' || pageHost === '127.0.0.1';
+    const apiUrl = API_URL.toLowerCase();
+    const pointsToLocalApi = apiUrl.includes('://127.0.0.1') || apiUrl.includes('://localhost');
+
+    if (!isLocalPage && pointsToLocalApi) {
+      return 'Prediction backend is still pointing to localhost. Update VITE_API_URL in Vercel to your deployed backend URL.';
+    }
+  }
+
+  return null;
+}
+
+function getReadableFirestoreError(error) {
+  const code = error?.code || '';
+
+  if (code === 'permission-denied') {
+    return 'Prediction completed, but Firestore denied the save. Check your Firestore security rules for the signed-in user.';
+  }
+
+  if (code === 'failed-precondition') {
+    return 'Prediction completed, but Firestore is not fully set up yet. Create the Firestore database in Firebase Console and try again.';
+  }
+
+  if (code === 'unavailable') {
+    return 'Prediction completed, but Firestore is temporarily unavailable. Please retry in a moment.';
+  }
+
+  return 'Prediction completed, but medical history could not be saved. Verify Firestore is created and linked to the same Firebase project.';
+}
+
 function App() {
   const [result, setResult] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [user, setUser] = useState(null);
-  const [authReady, setAuthReady] = useState(false);
+  const [isSigningIn, setIsSigningIn] = useState(false);
   const [isSavingProfile, setIsSavingProfile] = useState(false);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
   const [medicalProfile, setMedicalProfile] = useState(null);
@@ -91,7 +165,7 @@ function App() {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (nextUser) => {
       setUser(nextUser);
-      setAuthReady(true);
+      setIsSigningIn(false);
 
       if (!nextUser) {
         setMedicalProfile(null);
@@ -124,8 +198,32 @@ function App() {
   const handleSignIn = async () => {
     try {
       setError(null);
-      await signInWithRedirect(auth, googleProvider);
+      setIsSigningIn(true);
+      await setPersistence(auth, browserLocalPersistence);
+
+      if (shouldUseRedirectAuth()) {
+        await signInWithRedirect(auth, googleProvider);
+        return;
+      }
+
+      await signInWithPopup(auth, googleProvider);
     } catch (authError) {
+      if (authError?.code === 'auth/popup-blocked') {
+        try {
+          await signInWithRedirect(auth, googleProvider);
+          return;
+        } catch (redirectError) {
+          setIsSigningIn(false);
+          const readableRedirectError = getReadableAuthError(redirectError);
+          if (readableRedirectError) {
+            console.error(redirectError);
+            setError(readableRedirectError);
+          }
+          return;
+        }
+      }
+
+      setIsSigningIn(false);
       const readableMessage = getReadableAuthError(authError);
       if (!readableMessage) {
         return;
@@ -155,9 +253,18 @@ function App() {
   };
 
   const handlePredict = async (data) => {
+    const configError = getPredictionConfigError();
+    if (configError) {
+      setResult(null);
+      setError(configError);
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
     setResult(null);
+
+    let responseData = null;
 
     try {
       const response = await axios.post(`${API_URL}/predict`, {
@@ -165,23 +272,35 @@ function App() {
         use_ai_enhancement: true,
       });
 
-      setResult(response.data);
-
-      if (user?.uid) {
-        setIsSavingProfile(true);
-        await saveMedicalProfile(user.uid, data);
-        await savePredictionHistory(user.uid, data, response.data);
-        await refreshFirestoreData(user.uid);
-      }
+      responseData = response.data;
+      setResult(responseData);
     } catch (requestError) {
       console.error(requestError);
       if (requestError.response?.data?.detail) {
         setError(requestError.response.data.detail);
+      } else if (requestError.code === 'ERR_NETWORK') {
+        setError(`Could not reach the NIROG backend at ${API_URL}. Make sure the backend server is running and accessible from this frontend.`);
       } else {
-        setError('Failed to get prediction. Ensure backend is running and Firebase is configured correctly.');
+        setError('Failed to get prediction. Ensure the NIROG backend is running and VITE_API_URL points to it.');
       }
+      return;
     } finally {
       setIsLoading(false);
+    }
+
+    if (!user?.uid || !responseData) {
+      return;
+    }
+
+    try {
+      setIsSavingProfile(true);
+      await saveMedicalProfile(user.uid, data);
+      await savePredictionHistory(user.uid, data, responseData);
+      await refreshFirestoreData(user.uid);
+    } catch (firestoreError) {
+      console.error(firestoreError);
+      setError(getReadableFirestoreError(firestoreError));
+    } finally {
       setIsSavingProfile(false);
     }
   };
@@ -220,25 +339,11 @@ function App() {
           <p className="mt-4 text-sm md:text-base text-white/55 tracking-[0.2em] uppercase">
             Profile-Aware Drug Safety Intelligence
           </p>
-          <div className="mt-5 flex flex-wrap items-center justify-center gap-3 text-xs text-white/55">
-            <span className="inline-flex items-center gap-2 rounded-full border border-cyan-300/20 bg-cyan-300/10 px-3 py-1.5">
-              <ShieldCheck className="h-3.5 w-3.5 text-cyan-200" />
-              Firebase Auth + Firestore memory
-            </span>
-            <span className="inline-flex items-center gap-2 rounded-full border border-purple-300/20 bg-purple-300/10 px-3 py-1.5">
-              <Database className="h-3.5 w-3.5 text-purple-200" />
-              Hosted profile ranker
-            </span>
-            <span className="inline-flex items-center gap-2 rounded-full border border-emerald-300/20 bg-emerald-300/10 px-3 py-1.5">
-              <Brain className="h-3.5 w-3.5 text-emerald-200" />
-              Groq `gpt-oss-120b` as NIROG NLP layer
-            </span>
-          </div>
         </header>
 
         <AuthPanel
           user={user}
-          authReady={authReady}
+          isSigningIn={isSigningIn}
           isSavingProfile={isSavingProfile}
           onSignIn={handleSignIn}
           onSignOut={handleSignOut}
@@ -259,7 +364,6 @@ function App() {
             isLoading={isLoading}
             initialProfile={profileDraft}
             onProfileDraftChange={setProfileDraft}
-            isAuthenticated={Boolean(user)}
           />
 
           <AnimatePresence>

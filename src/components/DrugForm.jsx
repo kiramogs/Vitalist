@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Send,
@@ -12,7 +12,6 @@ import {
   AlertCircle,
   Stethoscope,
   Wine,
-  Cloud,
 } from 'lucide-react';
 
 const MEDICAL_CONDITIONS = [
@@ -61,7 +60,7 @@ function buildPayload(state) {
   };
 }
 
-const DrugForm = ({ onPredict, isLoading, initialProfile, onProfileDraftChange, isAuthenticated }) => {
+const DrugForm = ({ onPredict, isLoading, initialProfile, onProfileDraftChange }) => {
   const [formState, setFormState] = useState(() => buildUiState(initialProfile));
   const [advancedOpen, setAdvancedOpen] = useState(false);
 
@@ -69,11 +68,15 @@ const DrugForm = ({ onPredict, isLoading, initialProfile, onProfileDraftChange, 
     setFormState(buildUiState(initialProfile));
   }, [initialProfile]);
 
-  const payload = useMemo(() => buildPayload(formState), [formState]);
+  const payload = buildPayload(formState);
 
-  useEffect(() => {
-    onProfileDraftChange?.(payload);
-  }, [payload, onProfileDraftChange]);
+  const updateFormState = (updater) => {
+    setFormState((current) => {
+      const nextState = typeof updater === 'function' ? updater(current) : updater;
+      onProfileDraftChange?.(buildPayload(nextState));
+      return nextState;
+    });
+  };
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -82,11 +85,11 @@ const DrugForm = ({ onPredict, isLoading, initialProfile, onProfileDraftChange, 
 
   const handleFieldChange = (event) => {
     const { name, value } = event.target;
-    setFormState((current) => ({ ...current, [name]: value }));
+    updateFormState((current) => ({ ...current, [name]: value }));
   };
 
   const toggleCondition = (condition) => {
-    setFormState((current) => ({
+    updateFormState((current) => ({
       ...current,
       medical_conditions: current.medical_conditions.includes(condition)
         ? current.medical_conditions.filter((item) => item !== condition)
@@ -95,7 +98,7 @@ const DrugForm = ({ onPredict, isLoading, initialProfile, onProfileDraftChange, 
   };
 
   const toggleLifestyle = (factor) => {
-    setFormState((current) => ({
+    updateFormState((current) => ({
       ...current,
       lifestyle: current.lifestyle.includes(factor)
         ? current.lifestyle.filter((item) => item !== factor)
@@ -116,28 +119,11 @@ const DrugForm = ({ onPredict, isLoading, initialProfile, onProfileDraftChange, 
         </div>
         <div>
           <h2 className="text-2xl font-semibold text-white tracking-tight">NIROG Analysis</h2>
-          <p className="text-white/40 text-sm">Hosted ML-NLP safety inference with patient-profile memory</p>
+          <p className="text-white/40 text-sm">Profile-aware safety analysis with patient memory</p>
         </div>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="rounded-2xl border border-cyan-400/15 bg-cyan-400/10 p-4">
-          <div className="flex items-start gap-3">
-            <Cloud className="mt-0.5 h-5 w-5 text-cyan-200" />
-            <div>
-              <p className="text-sm font-medium text-cyan-100">Hosted engine routing is active</p>
-              <p className="text-xs text-cyan-100/65">
-                NIROG now presents Groq `openai/gpt-oss-120b` reasoning as its hosted ML-NLP inference layer, while still blending with the in-house risk model.
-              </p>
-              <p className="mt-1 text-xs text-white/45">
-                {isAuthenticated
-                  ? 'Signed-in sessions automatically persist medical history and analysis results to Firestore.'
-                  : 'Sign in with Google above to sync profile data and medical history to Firestore.'}
-              </p>
-            </div>
-          </div>
-        </div>
-
         <div className="group">
           <label className="block text-xs font-medium text-white/60 mb-2 uppercase tracking-wider ml-1">Drug Name *</label>
           <div className="relative">

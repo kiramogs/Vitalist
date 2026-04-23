@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { LogIn, LogOut, ShieldCheck, User } from 'lucide-react';
 
-const AuthPanel = ({ user, authReady, isSavingProfile, onSignIn, onSignOut }) => {
+const AuthPanel = ({ user, isSigningIn, isSavingProfile, onSignIn, onSignOut }) => {
   return (
     <motion.section
       initial={{ opacity: 0, y: 20 }}
@@ -45,11 +45,11 @@ const AuthPanel = ({ user, authReady, isSavingProfile, onSignIn, onSignOut }) =>
             <button
               type="button"
               onClick={onSignIn}
-              disabled={!authReady}
+              disabled={isSigningIn}
               className="glass-button inline-flex items-center justify-center gap-2 disabled:cursor-not-allowed disabled:opacity-60"
             >
               <LogIn className="h-4 w-4" />
-              {authReady ? 'Continue with Google' : 'Preparing sign-in'}
+              {isSigningIn ? 'Connecting to Google' : 'Continue with Google'}
             </button>
           )}
 
