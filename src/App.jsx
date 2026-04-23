@@ -10,11 +10,11 @@ import {
   signInWithRedirect,
   signOut,
 } from 'firebase/auth';
-import { Brain } from 'lucide-react';
+import { Brain, LogOut, Loader2 } from 'lucide-react';
 
 import DrugForm from './components/DrugForm';
 import PredictionResult from './components/PredictionResult';
-import AuthPanel from './components/AuthPanel';
+import LoginScreen from './components/LoginScreen';
 import HistoryPanel from './components/HistoryPanel';
 import { auth, googleProvider } from './lib/firebase';
 import {
@@ -126,6 +126,7 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [user, setUser] = useState(null);
+  const [authReady, setAuthReady] = useState(false);
   const [isSigningIn, setIsSigningIn] = useState(false);
   const [isSavingProfile, setIsSavingProfile] = useState(false);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
@@ -165,6 +166,7 @@ function App() {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (nextUser) => {
       setUser(nextUser);
+      setAuthReady(true);
       setIsSigningIn(false);
 
       if (!nextUser) {
@@ -320,12 +322,41 @@ function App() {
     }
   };
 
+  /* --- Auth gate --------------------------------------------------------- */
+
+  // Firebase is still checking for a persisted session
+  if (!authReady) {
+    return (
+      <div className="min-h-screen relative overflow-hidden font-sans flex items-center justify-center">
+        <div className="mesh-gradient" />
+        <div className="relative z-10 flex flex-col items-center gap-4">
+          <Loader2 className="h-10 w-10 text-purple-300 animate-spin" />
+          <p className="text-sm text-white/40 tracking-widest uppercase">Loading NIROG</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Not signed in — show the login screen
+  if (!user) {
+    return (
+      <LoginScreen
+        onSignIn={handleSignIn}
+        isSigningIn={isSigningIn}
+        error={error}
+      />
+    );
+  }
+
+  /* --- Authenticated app ------------------------------------------------ */
+
   return (
     <div className="min-h-screen relative overflow-hidden font-sans">
       <div className="mesh-gradient" />
 
       <div className="relative z-10 max-w-6xl mx-auto px-6 py-12 flex flex-col items-center gap-6">
-        <header className="text-center mb-2">
+        {/* Top bar: branding + signed-in user + sign out */}
+        <header className="w-full flex flex-col items-center gap-4 mb-2">
           <motion.h1
             initial={{ opacity: 0, y: -30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -336,18 +367,49 @@ function App() {
               NIROG
             </span>
           </motion.h1>
-          <p className="mt-4 text-sm md:text-base text-white/55 tracking-[0.2em] uppercase">
+          <p className="text-sm md:text-base text-white/55 tracking-[0.2em] uppercase">
             Profile-Aware Drug Safety Intelligence
           </p>
-        </header>
 
-        <AuthPanel
-          user={user}
-          isSigningIn={isSigningIn}
-          isSavingProfile={isSavingProfile}
-          onSignIn={handleSignIn}
-          onSignOut={handleSignOut}
-        />
+          {/* Signed-in status bar */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="glass-panel flex items-center gap-3 px-5 py-3 text-sm w-full max-w-xl"
+            style={{ borderRadius: '16px' }}
+          >
+            {user.photoURL ? (
+              <img
+                src={user.photoURL}
+                alt=""
+                className="h-8 w-8 rounded-full border border-white/20"
+                referrerPolicy="no-referrer"
+              />
+            ) : (
+              <div className="h-8 w-8 rounded-full bg-purple-400/20 border border-purple-300/20 flex items-center justify-center text-xs font-bold text-purple-200">
+                {(user.displayName || user.email || '?')[0].toUpperCase()}
+              </div>
+            )}
+            <span className="flex-1 text-white/70 truncate">
+              {user.displayName || user.email}
+            </span>
+            {isSavingProfile && (
+              <span className="text-xs text-cyan-300/70 flex items-center gap-1">
+                <Loader2 className="h-3 w-3 animate-spin" /> Syncing
+              </span>
+            )}
+            <button
+              type="button"
+              id="signout-button"
+              onClick={handleSignOut}
+              className="inline-flex items-center gap-1.5 text-xs text-white/40 hover:text-white/80 transition-colors"
+            >
+              <LogOut className="h-3.5 w-3.5" />
+              Sign out
+            </button>
+          </motion.div>
+        </header>
 
         <HistoryPanel
           user={user}
