@@ -8,83 +8,115 @@ const MODEL_PATHS = {
   female: '/models/female_body.glb',
 };
 
+const preloadedModels = new Set();
+
+function getModelPath(gender) {
+  return String(gender || '').toLowerCase() === 'female' ? MODEL_PATHS.female : MODEL_PATHS.male;
+}
+
+function queueModelPreload(modelPath) {
+  if (preloadedModels.has(modelPath)) {
+    return;
+  }
+
+  preloadedModels.add(modelPath);
+  useGLTF.preload(modelPath);
+}
+
+export function preloadBodyModels(gender) {
+  const preferredPath = getModelPath(gender);
+  const secondaryPath = preferredPath === MODEL_PATHS.female ? MODEL_PATHS.male : MODEL_PATHS.female;
+
+  queueModelPreload(preferredPath);
+
+  const preloadSecondary = () => queueModelPreload(secondaryPath);
+  if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
+    window.requestIdleCallback(preloadSecondary, { timeout: 4500 });
+    return;
+  }
+
+  if (typeof window !== 'undefined') {
+    window.setTimeout(preloadSecondary, 3500);
+  }
+}
+
 const BODY_REGIONS = {
   head: {
     label: 'Head',
-    position: [0, 0.88, 0.24],
-    labelPosition: [0.55, 0.98, 0.52],
+    position: [0, 0.42, 0.12],
+    labelPosition: [0.42, 0.47, 0.36],
     keywords: ['headache', 'migraine', 'head pain', 'dizziness', 'vertigo', 'confusion'],
   },
   brain: {
     label: 'Nervous system',
-    position: [0, 0.72, 0.26],
-    labelPosition: [-0.68, 0.86, 0.55],
+    position: [0, 0.36, 0.13],
+    labelPosition: [-0.48, 0.43, 0.36],
     keywords: ['seizure', 'anxiety', 'depression', 'drowsiness', 'sedation', 'insomnia', 'tremor', 'neuropathy'],
   },
   eyes: {
     label: 'Eyes',
-    position: [0.12, 0.79, 0.27],
-    labelPosition: [0.72, 0.78, 0.55],
+    position: [0.06, 0.39, 0.13],
+    labelPosition: [0.48, 0.39, 0.36],
     keywords: ['vision', 'blurred vision', 'eye', 'glaucoma', 'visual'],
   },
   mouth_throat: {
     label: 'Mouth and throat',
-    position: [0, 0.63, 0.27],
-    labelPosition: [0.72, 0.6, 0.55],
+    position: [0, 0.31, 0.13],
+    labelPosition: [0.48, 0.3, 0.36],
     keywords: ['dry mouth', 'mouth', 'throat', 'taste', 'swallowing', 'sore throat'],
   },
   heart: {
     label: 'Heart and chest',
-    position: [-0.1, 0.34, 0.29],
-    labelPosition: [-0.82, 0.42, 0.58],
+    position: [-0.06, 0.17, 0.14],
+    labelPosition: [-0.54, 0.22, 0.38],
     keywords: ['chest', 'heart', 'palpitation', 'arrhythmia', 'qt', 'blood pressure', 'hypertension', 'tachycardia'],
   },
   lungs: {
     label: 'Lungs',
-    position: [0.12, 0.32, 0.3],
-    labelPosition: [0.82, 0.34, 0.58],
+    position: [0.07, 0.16, 0.14],
+    labelPosition: [0.54, 0.18, 0.38],
     keywords: ['breathing', 'respiratory', 'bronchospasm', 'asthma', 'cough', 'shortness of breath', 'dyspnea'],
   },
   stomach: {
     label: 'Digestive system',
-    position: [0, 0.02, 0.31],
-    labelPosition: [0.82, 0.05, 0.58],
+    position: [0, 0.02, 0.15],
+    labelPosition: [0.54, 0.03, 0.38],
     keywords: ['nausea', 'vomiting', 'diarrhea', 'constipation', 'abdominal', 'stomach', 'gastric', 'gastrointestinal', 'appetite'],
   },
   liver: {
     label: 'Liver',
-    position: [0.15, 0.12, 0.31],
-    labelPosition: [0.82, 0.18, 0.58],
+    position: [0.08, 0.07, 0.15],
+    labelPosition: [0.54, 0.1, 0.38],
     keywords: ['liver', 'hepatic', 'jaundice', 'hepatotoxicity', 'transaminase'],
   },
   kidney: {
     label: 'Kidneys',
-    position: [-0.16, -0.08, 0.3],
-    labelPosition: [-0.82, -0.02, 0.58],
+    position: [-0.08, -0.04, 0.14],
+    labelPosition: [-0.54, 0, 0.38],
     keywords: ['kidney', 'renal', 'urination', 'urinary', 'bladder', 'creatinine'],
   },
   skin: {
     label: 'Skin',
-    position: [0.35, 0.16, 0.24],
-    labelPosition: [0.9, 0.26, 0.54],
+    position: [0.18, 0.08, 0.12],
+    labelPosition: [0.58, 0.14, 0.36],
     keywords: ['rash', 'itching', 'hives', 'swelling', 'photosensitivity', 'skin', 'urticaria', 'edema'],
   },
   muscle_joint: {
     label: 'Muscle and joints',
-    position: [-0.3, -0.35, 0.24],
-    labelPosition: [-0.9, -0.28, 0.54],
+    position: [-0.16, -0.24, 0.12],
+    labelPosition: [-0.58, -0.2, 0.36],
     keywords: ['muscle', 'joint', 'weakness', 'cramp', 'myalgia', 'arthralgia', 'pain'],
   },
   blood: {
     label: 'Blood',
-    position: [0, 0.24, 0.32],
-    labelPosition: [-0.82, 0.2, 0.58],
+    position: [0, 0.12, 0.15],
+    labelPosition: [-0.54, 0.12, 0.38],
     keywords: ['bleeding', 'anemia', 'platelet', 'clot', 'blood', 'bruising', 'hemorrhage'],
   },
   reproductive: {
     label: 'Reproductive system',
-    position: [0, -0.28, 0.29],
-    labelPosition: [0.82, -0.26, 0.56],
+    position: [0, -0.16, 0.14],
+    labelPosition: [0.54, -0.15, 0.37],
     keywords: ['pregnancy', 'reproductive', 'menstrual', 'fertility', 'sexual'],
   },
 };
@@ -164,7 +196,7 @@ function mapPredictionsToRegions(predictions = []) {
 }
 
 function BodyModel({ gender }) {
-  const modelPath = gender === 'female' ? MODEL_PATHS.female : MODEL_PATHS.male;
+  const modelPath = getModelPath(gender);
   const { scene } = useGLTF(modelPath);
 
   return <primitive object={scene} position={[0, 0, 0]} rotation={[0, 0, 0]} />;

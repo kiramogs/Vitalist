@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { lazy, Suspense, useEffect, useState } from 'react';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -16,7 +16,6 @@ import LoginScreen from './components/LoginScreen';
 import HealthProfileSetup from './components/HealthProfileSetup';
 import HistoryPanel from './components/HistoryPanel';
 import BrandLogo from './components/BrandLogo';
-import BodyImpactViewer from './components/BodyImpactViewer';
 import { auth, googleProvider } from './lib/firebase';
 import {
   ensureUserProfile,
@@ -44,6 +43,8 @@ function resolveApiUrl() {
 }
 
 const API_URL = resolveApiUrl();
+const loadBodyImpactViewer = () => import('./components/BodyImpactViewer');
+const BodyImpactViewer = lazy(loadBodyImpactViewer);
 
 function getReadableAuthError(error) {
   const code = error?.code || '';
@@ -157,6 +158,39 @@ function App() {
 
     return () => unsubscribe();
   }, []);
+
+  useEffect(() => {
+    if (!authReady) {
+      return undefined;
+    }
+
+    let cancelled = false;
+    const warmBodyViewer = () => {
+      loadBodyImpactViewer()
+        .then(({ preloadBodyModels }) => {
+          if (!cancelled) {
+            preloadBodyModels?.(medicalProfile?.gender);
+          }
+        })
+        .catch((preloadError) => {
+          console.warn('3D body viewer preload skipped:', preloadError.message);
+        });
+    };
+
+    if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
+      const idleId = window.requestIdleCallback(warmBodyViewer, { timeout: 1800 });
+      return () => {
+        cancelled = true;
+        window.cancelIdleCallback(idleId);
+      };
+    }
+
+    const timerId = window.setTimeout(warmBodyViewer, 900);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timerId);
+    };
+  }, [authReady, medicalProfile?.gender]);
 
   const handleSignIn = async () => {
     try {
@@ -492,7 +526,15 @@ function App() {
                   aiEnhanced={result.ai_enhanced}
                   analysisEngine={result.analysis_engine}
                 />
-                <BodyImpactViewer gender={medicalProfile?.gender} predictions={result.predictions} />
+                <Suspense
+                  fallback={
+                    <div className="glass-panel w-full max-w-2xl p-5 text-center text-sm text-white/55">
+                      Preparing precise body impact view...
+                    </div>
+                  }
+                >
+                  <BodyImpactViewer gender={medicalProfile?.gender} predictions={result.predictions} />
+                </Suspense>
               </>
             )}
           </AnimatePresence>
