@@ -153,6 +153,7 @@ service cloud.firestore {
 ### Frontend
 
 - `VITE_API_URL` - backend base URL
+- `VITE_GROQ_API_KEY` or `VITE_MODEL_ACCESS_KEY` - enables in-app trained-model analysis when the backend is not reachable
 
 For Vercel, set `VITE_API_URL` in Project Settings to your deployed backend, for example:
 
@@ -160,7 +161,7 @@ For Vercel, set `VITE_API_URL` in Project Settings to your deployed backend, for
 https://your-backend-service.example.com
 ```
 
-If `VITE_API_URL` is missing on Vercel, the frontend cannot reach `/predict`.
+If `VITE_API_URL` is missing on Vercel, NIROG can still run analysis from the app itself when the frontend model access key is configured.
 
 ## License
 

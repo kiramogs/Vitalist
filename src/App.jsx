@@ -24,6 +24,7 @@ import {
   saveMedicalProfile,
   savePredictionHistory,
 } from './lib/userStore';
+import { isTrainedModelConfigured, predictWithTrainedModel } from './lib/trainedModelService';
 
 function resolveApiUrl() {
   const configuredUrl = import.meta.env.VITE_API_URL?.trim();
@@ -220,12 +221,6 @@ function App() {
     setError(null);
     setResult(null);
 
-    if (!API_URL) {
-      setError('Prediction backend is not configured. Set VITE_API_URL to the deployed NIROG trained-model backend.');
-      setIsLoading(false);
-      return;
-    }
-
     // Merge saved health profile into the prediction payload
     const mergedData = {
       ...data,
@@ -250,20 +245,33 @@ function App() {
     let responseData = null;
 
     try {
-      const response = await axios.post(`${API_URL}/predict`, {
-        ...mergedData,
-        use_ai_enhancement: true,
-      });
-      responseData = response.data;
+      if (API_URL) {
+        try {
+          const response = await axios.post(`${API_URL}/predict`, {
+            ...mergedData,
+            use_ai_enhancement: true,
+          });
+          responseData = response.data;
+        } catch (backendError) {
+          console.warn('Backend unavailable, continuing with in-app trained-model analysis:', backendError.message);
+        }
+      }
+
+      if (!responseData) {
+        if (!isTrainedModelConfigured()) {
+          throw new Error('NIROG trained-model access is not configured. Add the model access key to your frontend environment.');
+        }
+
+        responseData = await predictWithTrainedModel(mergedData);
+      }
+
       setResult(responseData);
     } catch (requestError) {
       console.error(requestError);
       if (requestError.response?.data?.detail) {
         setError(requestError.response.data.detail);
-      } else if (requestError.code === 'ERR_NETWORK') {
-        setError(`Could not reach the NIROG trained-model backend at ${API_URL}. Make sure the backend is running and accessible from this frontend.`);
       } else {
-        setError('Failed to get prediction from the NIROG trained-model backend.');
+        setError(requestError.message || 'Failed to get prediction from the NIROG trained model.');
       }
       return;
     } finally {
