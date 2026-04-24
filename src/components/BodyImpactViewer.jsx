@@ -44,79 +44,79 @@ const BODY_REGIONS = {
   head: {
     label: 'Head',
     position: [0, 0.42, 0.12],
-    labelPosition: [0.42, 0.47, 0.36],
+    labelPosition: [0.62, 0.47, 0.42],
     keywords: ['headache', 'migraine', 'head pain', 'dizziness', 'vertigo', 'confusion'],
   },
   brain: {
     label: 'Nervous system',
     position: [0, 0.36, 0.13],
-    labelPosition: [-0.48, 0.43, 0.36],
+    labelPosition: [-0.66, 0.43, 0.42],
     keywords: ['seizure', 'anxiety', 'depression', 'drowsiness', 'sedation', 'insomnia', 'tremor', 'neuropathy'],
   },
   eyes: {
     label: 'Eyes',
     position: [0.06, 0.39, 0.13],
-    labelPosition: [0.48, 0.39, 0.36],
+    labelPosition: [0.68, 0.39, 0.42],
     keywords: ['vision', 'blurred vision', 'eye', 'glaucoma', 'visual'],
   },
   mouth_throat: {
     label: 'Mouth and throat',
     position: [0, 0.31, 0.13],
-    labelPosition: [0.48, 0.3, 0.36],
+    labelPosition: [0.68, 0.3, 0.42],
     keywords: ['dry mouth', 'mouth', 'throat', 'taste', 'swallowing', 'sore throat'],
   },
   heart: {
     label: 'Heart and chest',
     position: [-0.06, 0.17, 0.14],
-    labelPosition: [-0.54, 0.22, 0.38],
+    labelPosition: [-0.72, 0.23, 0.43],
     keywords: ['chest', 'heart', 'palpitation', 'arrhythmia', 'qt', 'blood pressure', 'hypertension', 'tachycardia'],
   },
   lungs: {
     label: 'Lungs',
     position: [0.07, 0.16, 0.14],
-    labelPosition: [0.54, 0.18, 0.38],
+    labelPosition: [0.72, 0.19, 0.43],
     keywords: ['breathing', 'respiratory', 'bronchospasm', 'asthma', 'cough', 'shortness of breath', 'dyspnea'],
   },
   stomach: {
     label: 'Digestive system',
     position: [0, 0.02, 0.15],
-    labelPosition: [0.54, 0.03, 0.38],
+    labelPosition: [0.72, 0.03, 0.43],
     keywords: ['nausea', 'vomiting', 'diarrhea', 'constipation', 'abdominal', 'stomach', 'gastric', 'gastrointestinal', 'appetite'],
   },
   liver: {
     label: 'Liver',
     position: [0.08, 0.07, 0.15],
-    labelPosition: [0.54, 0.1, 0.38],
+    labelPosition: [0.72, 0.1, 0.43],
     keywords: ['liver', 'hepatic', 'jaundice', 'hepatotoxicity', 'transaminase'],
   },
   kidney: {
     label: 'Kidneys',
     position: [-0.08, -0.04, 0.14],
-    labelPosition: [-0.54, 0, 0.38],
+    labelPosition: [-0.72, 0, 0.43],
     keywords: ['kidney', 'renal', 'urination', 'urinary', 'bladder', 'creatinine'],
   },
   skin: {
     label: 'Skin',
     position: [0.18, 0.08, 0.12],
-    labelPosition: [0.58, 0.14, 0.36],
+    labelPosition: [0.78, 0.14, 0.42],
     keywords: ['rash', 'itching', 'hives', 'swelling', 'photosensitivity', 'skin', 'urticaria', 'edema'],
   },
   muscle_joint: {
     label: 'Muscle and joints',
     position: [-0.16, -0.24, 0.12],
-    labelPosition: [-0.58, -0.2, 0.36],
+    labelPosition: [-0.78, -0.2, 0.42],
     keywords: ['muscle', 'joint', 'weakness', 'cramp', 'myalgia', 'arthralgia', 'pain'],
   },
   blood: {
     label: 'Blood',
     position: [0, 0.12, 0.15],
-    labelPosition: [-0.54, 0.12, 0.38],
+    labelPosition: [-0.72, 0.12, 0.43],
     keywords: ['bleeding', 'anemia', 'platelet', 'clot', 'blood', 'bruising', 'hemorrhage'],
   },
   reproductive: {
     label: 'Reproductive system',
     position: [0, -0.16, 0.14],
-    labelPosition: [0.54, -0.15, 0.37],
+    labelPosition: [0.72, -0.15, 0.42],
     keywords: ['pregnancy', 'reproductive', 'menstrual', 'fertility', 'sexual'],
   },
 };
@@ -233,10 +233,10 @@ function AreaMarker({ marker }) {
         <meshBasicMaterial color="#5eead4" transparent opacity={0.2} />
       </mesh>
       <MarkerLine start={region.position} end={region.labelPosition} />
-      <Html position={region.labelPosition} center distanceFactor={2.8}>
-        <div className="pointer-events-none min-w-36 rounded-xl border border-cyan-300/30 bg-black/75 px-3 py-2 text-left shadow-xl shadow-black/40 backdrop-blur-md">
-          <p className="text-xs font-semibold text-cyan-100">{label}</p>
-          <p className="mt-0.5 text-[10px] uppercase tracking-[0.18em] text-white/45">
+      <Html position={region.labelPosition} center distanceFactor={3.45}>
+        <div className="pointer-events-none max-w-40 rounded-lg border border-cyan-300/25 bg-black/72 px-2.5 py-1.5 text-left shadow-lg shadow-black/35 backdrop-blur-md">
+          <p className="text-[10px] font-semibold leading-snug text-cyan-100">{label}</p>
+          <p className="mt-0.5 text-[8px] uppercase tracking-[0.14em] text-white/45">
             {marker.severity} | {marker.probability}% risk
           </p>
         </div>
