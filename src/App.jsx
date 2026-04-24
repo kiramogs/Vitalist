@@ -16,6 +16,7 @@ import LoginScreen from './components/LoginScreen';
 import HealthProfileSetup from './components/HealthProfileSetup';
 import HistoryPanel from './components/HistoryPanel';
 import BrandLogo from './components/BrandLogo';
+import BodyImpactViewer from './components/BodyImpactViewer';
 import { auth, googleProvider } from './lib/firebase';
 import {
   ensureUserProfile,
@@ -491,6 +492,7 @@ function App() {
                   aiEnhanced={result.ai_enhanced}
                   analysisEngine={result.analysis_engine}
                 />
+                <BodyImpactViewer gender={medicalProfile?.gender} predictions={result.predictions} />
               </>
             )}
           </AnimatePresence>

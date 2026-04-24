@@ -28,3 +28,6 @@ npm-debug.log*
 
 # Build
 package-lock.json
+
+# Source 3D model drops
+3D Models/
