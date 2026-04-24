@@ -81,10 +81,6 @@ const LoginScreen = ({ onSignIn, isSigningIn, error }) => {
           )}
         </motion.div>
 
-        {/* Footer */}
-        <motion.p variants={itemVariants} className="text-xs text-white/25 text-center max-w-xs">
-          For educational purposes only. Always consult a qualified healthcare professional.
-        </motion.p>
       </motion.div>
     </div>
   );

@@ -62,7 +62,6 @@ const DrugForm = ({ onPredict, isLoading, initialProfile, onProfileDraftChange }
         <BrandLogo size="xs" className="shrink-0" />
         <div>
           <h2 className="text-2xl font-semibold text-white tracking-tight">NIROG Analysis</h2>
-          <p className="text-white/40 text-sm">Profile-aware safety analysis with patient memory</p>
         </div>
       </div>
 
@@ -128,9 +127,6 @@ const DrugForm = ({ onPredict, isLoading, initialProfile, onProfileDraftChange }
           )}
         </motion.button>
 
-        <p className="text-white/20 text-xs text-center">
-          Your saved health profile is automatically included in every analysis.
-        </p>
       </form>
     </motion.div>
   );

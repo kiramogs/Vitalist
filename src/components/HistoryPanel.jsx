@@ -43,8 +43,7 @@ const HistoryPanel = ({
           <div className="mb-4 flex items-center gap-3">
             <Shield className="h-5 w-5 text-emerald-300" />
             <div>
-              <h3 className="text-lg font-semibold text-white">Stored Medical Profile</h3>
-              <p className="text-sm text-white/45">Your latest Firestore-backed health context used by NIROG.</p>
+              <h3 className="text-lg font-semibold text-white">Medical Profile</h3>
             </div>
           </div>
 
@@ -64,7 +63,7 @@ const HistoryPanel = ({
             </div>
           ) : (
             <p className="text-sm text-white/50">
-              No medical history has been stored yet. Submit an analysis after signing in and NIROG will create your profile snapshot automatically.
+              No profile saved yet.
             </p>
           )}
         </div>
@@ -74,7 +73,6 @@ const HistoryPanel = ({
             <Database className="h-5 w-5 text-cyan-300" />
             <div>
               <h3 className="text-lg font-semibold text-white">Prediction Ledger</h3>
-              <p className="text-sm text-white/45">Recent NIROG sessions stored in Firestore.</p>
             </div>
           </div>
 
@@ -91,9 +89,6 @@ const HistoryPanel = ({
                       <p className="font-medium text-white">{entry.request?.drug_name || 'Unnamed analysis'}</p>
                       <p className="text-xs text-white/35">{formatDateLabel(entry.createdAt)}</p>
                     </div>
-                    <span className="rounded-full bg-cyan-500/15 px-2 py-1 text-[11px] font-medium text-cyan-200">
-                      NIROG Trained Model
-                    </span>
                   </div>
 
                   <div className="mb-3 flex items-center gap-3 text-xs text-white/45">

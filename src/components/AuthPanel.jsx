@@ -16,20 +16,13 @@ const AuthPanel = ({ user, isSigningIn, isSavingProfile, onSignIn, onSignOut }) 
             {user ? <ShieldCheck className="h-6 w-6 text-cyan-200" /> : <User className="h-6 w-6 text-white/80" />}
           </div>
           <div>
-            <p className="text-xs uppercase tracking-[0.24em] text-white/40">Identity Layer</p>
             {user ? (
               <>
                 <h2 className="text-lg font-semibold text-white">Signed in as {user.displayName || 'NIROG user'}</h2>
-                <p className="text-sm text-white/55">
-                  Google sign-in is active. Firestore now stores profile data, medical history, and past NIROG analyses for this account.
-                </p>
               </>
             ) : (
               <>
-                <h2 className="text-lg font-semibold text-white">Secure profile sync is available</h2>
-                <p className="text-sm text-white/55">
-                  Sign in with Google to persist medical history, medication lists, and NIROG prediction history in your Firebase project.
-                </p>
+                <h2 className="text-lg font-semibold text-white">Sign in</h2>
               </>
             )}
           </div>
@@ -53,13 +46,7 @@ const AuthPanel = ({ user, isSigningIn, isSavingProfile, onSignIn, onSignOut }) 
             </button>
           )}
 
-          <p className="text-xs text-white/35">
-            {user
-              ? isSavingProfile
-                ? 'Syncing profile to Firestore...'
-                : 'Medical profile sync is active.'
-              : 'Firestore sync begins after sign-in.'}
-          </p>
+          {user && isSavingProfile && <p className="text-xs text-white/35">Saving profile...</p>}
         </div>
       </div>
     </motion.section>

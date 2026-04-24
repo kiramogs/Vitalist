@@ -8,7 +8,7 @@ import {
   signInWithPopup,
   signOut,
 } from 'firebase/auth';
-import { Brain, LogOut, Loader2, UserCog } from 'lucide-react';
+import { LogOut, Loader2, UserCog } from 'lucide-react';
 
 import DrugForm from './components/DrugForm';
 import PredictionResult from './components/PredictionResult';
@@ -479,10 +479,6 @@ function App() {
                   >
                     <span>
                       Results for: <span className="text-purple-300 font-medium">{result.drug_found}</span>
-                    </span>
-                    <span className="flex items-center gap-1 text-cyan-300">
-                      <Brain className="w-4 h-4" />
-                      {result.analysis_engine || 'NIROG Trained Model'}
                     </span>
                   </motion.div>
                 )}
