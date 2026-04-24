@@ -21,17 +21,19 @@ const LoginScreen = ({ onSignIn, isSigningIn, error }) => {
   return (
     <div className="min-h-screen relative overflow-hidden font-sans flex items-center justify-center px-6 py-12">
       <div className="mesh-gradient" />
+      <div className="fixed left-5 top-5 z-20 md:left-8 md:top-8">
+        <BrandLogo size="xs" />
+      </div>
 
       <motion.div
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="relative z-10 w-full max-w-md flex flex-col items-center gap-8"
+        className="relative z-10 w-full max-w-md flex flex-col items-center gap-6"
       >
         {/* Brand */}
         <motion.div variants={itemVariants} className="text-center flex flex-col items-center">
-          <BrandLogo size="lg" />
-          <p className="mt-4 text-sm md:text-base text-white/50 tracking-[0.25em] uppercase">
+          <p className="text-sm md:text-base text-white/50 tracking-[0.25em] uppercase">
             Drug Safety Intelligence
           </p>
         </motion.div>

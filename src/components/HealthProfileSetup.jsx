@@ -102,6 +102,9 @@ const HealthProfileSetup = ({ user, onComplete, onCancel, isSaving, initialProfi
   return (
     <div className="min-h-screen relative overflow-hidden font-sans flex items-center justify-center px-6 py-12">
       <div className="mesh-gradient" />
+      <div className="fixed left-5 top-5 z-20 md:left-8 md:top-8">
+        <BrandLogo size="xs" />
+      </div>
 
       <motion.div
         variants={containerVariants}
@@ -111,7 +114,6 @@ const HealthProfileSetup = ({ user, onComplete, onCancel, isSaving, initialProfi
       >
         {/* Header */}
         <motion.div variants={itemVariants} className="text-center flex flex-col items-center">
-          <BrandLogo size="sm" className="mb-5" />
           <h1 className="text-4xl md:text-5xl font-bold tracking-tight">
             <span className="bg-gradient-to-r from-purple-200 via-cyan-200 to-purple-200 bg-clip-text text-transparent">
               {isEditing ? 'Edit Your Profile' : 'Set Up Your Profile'}

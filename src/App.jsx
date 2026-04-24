@@ -372,69 +372,63 @@ function App() {
       <div className="mesh-gradient" />
 
       <div className="relative z-10 max-w-6xl mx-auto px-6 py-12 flex flex-col items-center gap-6">
-        {/* Top bar: branding + signed-in user + sign out */}
-        <header className="w-full flex flex-col items-center gap-4 mb-2">
-          <BrandLogo size="md" />
-          <motion.h1
-            initial={{ opacity: 0, y: -30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: 'easeOut' }}
-            className="text-5xl md:text-6xl font-bold text-white tracking-tight"
-          >
-            <span className="bg-gradient-to-r from-purple-200 via-cyan-200 to-purple-200 bg-clip-text text-transparent">
-              NIROG
-            </span>
-          </motion.h1>
-          <p className="text-sm md:text-base text-white/55 tracking-[0.2em] uppercase">
-            Profile-Aware Drug Safety Intelligence
-          </p>
-
-          {/* Signed-in status bar */}
+        <header className="w-full mb-2">
           <motion.div
-            initial={{ opacity: 0, y: 10 }}
+            initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="glass-panel flex items-center gap-3 px-5 py-3 text-sm w-full max-w-xl"
-            style={{ borderRadius: '16px' }}
+            transition={{ duration: 0.45, ease: 'easeOut' }}
+            className="flex flex-col gap-4 rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-4 backdrop-blur-xl md:flex-row md:items-center md:justify-between md:px-5"
           >
-            {user.photoURL ? (
-              <img
-                src={user.photoURL}
-                alt=""
-                className="h-8 w-8 rounded-full border border-white/20"
-                referrerPolicy="no-referrer"
-              />
-            ) : (
-              <div className="h-8 w-8 rounded-full bg-purple-400/20 border border-purple-300/20 flex items-center justify-center text-xs font-bold text-purple-200">
-                {(user.displayName || user.email || '?')[0].toUpperCase()}
+            <div className="flex items-center gap-3">
+              <BrandLogo size="xs" className="shrink-0" />
+              <div>
+                <h1 className="text-lg font-semibold text-white">NIROG</h1>
+                <p className="text-xs uppercase tracking-[0.22em] text-white/45">
+                  Drug Safety Intelligence
+                </p>
               </div>
-            )}
-            <span className="flex-1 text-white/70 truncate">
-              {user.displayName || user.email}
-            </span>
-            {isSavingProfile && (
-              <span className="text-xs text-cyan-300/70 flex items-center gap-1">
-                <Loader2 className="h-3 w-3 animate-spin" /> Syncing
+            </div>
+
+            <div className="flex min-w-0 flex-wrap items-center gap-3 text-sm md:justify-end">
+              {user.photoURL ? (
+                <img
+                  src={user.photoURL}
+                  alt=""
+                  className="h-8 w-8 rounded-full border border-white/20"
+                  referrerPolicy="no-referrer"
+                />
+              ) : (
+                <div className="flex h-8 w-8 items-center justify-center rounded-full border border-white/15 bg-white/10 text-xs font-bold text-white/80">
+                  {(user.displayName || user.email || '?')[0].toUpperCase()}
+                </div>
+              )}
+              <span className="min-w-0 max-w-[13rem] truncate text-white/65">
+                {user.displayName || user.email}
               </span>
-            )}
-            <button
-              type="button"
-              id="edit-profile-button"
-              onClick={() => setEditingProfile(true)}
-              className="inline-flex items-center gap-1.5 text-xs text-white/40 hover:text-white/80 transition-colors"
-            >
-              <UserCog className="h-3.5 w-3.5" />
-              Edit Profile
-            </button>
-            <button
-              type="button"
-              id="signout-button"
-              onClick={handleSignOut}
-              className="inline-flex items-center gap-1.5 text-xs text-white/40 hover:text-white/80 transition-colors"
-            >
-              <LogOut className="h-3.5 w-3.5" />
-              Sign out
-            </button>
+              {isSavingProfile && (
+                <span className="flex items-center gap-1 text-xs text-cyan-300/70">
+                  <Loader2 className="h-3 w-3 animate-spin" /> Syncing
+                </span>
+              )}
+              <button
+                type="button"
+                id="edit-profile-button"
+                onClick={() => setEditingProfile(true)}
+                className="inline-flex items-center gap-1.5 rounded-full border border-white/10 px-3 py-2 text-xs text-white/55 transition-colors hover:border-white/20 hover:bg-white/10 hover:text-white"
+              >
+                <UserCog className="h-3.5 w-3.5" />
+                Profile
+              </button>
+              <button
+                type="button"
+                id="signout-button"
+                onClick={handleSignOut}
+                className="inline-flex items-center gap-1.5 rounded-full border border-white/10 px-3 py-2 text-xs text-white/55 transition-colors hover:border-white/20 hover:bg-white/10 hover:text-white"
+              >
+                <LogOut className="h-3.5 w-3.5" />
+                Sign out
+              </button>
+            </div>
           </motion.div>
         </header>
 

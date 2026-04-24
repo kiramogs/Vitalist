@@ -2,10 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   Send,
-  Activity,
   Pill,
   Calendar,
 } from 'lucide-react';
+
+import BrandLogo from './BrandLogo';
 
 function buildUiState(profile = {}) {
   return {
@@ -55,12 +56,10 @@ const DrugForm = ({ onPredict, isLoading, initialProfile, onProfileDraftChange }
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, ease: 'easeOut' }}
-      className="glass-panel p-8 w-full max-w-2xl mx-auto"
+      className="glass-panel p-6 md:p-8 w-full max-w-2xl mx-auto"
     >
-      <div className="flex items-center gap-4 mb-8">
-        <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center">
-          <Activity className="w-6 h-6 text-white" />
-        </div>
+      <div className="flex items-start gap-4 mb-8">
+        <BrandLogo size="xs" className="shrink-0" />
         <div>
           <h2 className="text-2xl font-semibold text-white tracking-tight">NIROG Analysis</h2>
           <p className="text-white/40 text-sm">Profile-aware safety analysis with patient memory</p>
