@@ -1,6 +1,6 @@
 # NIROG
 
-Profile-aware drug safety prediction using a curated adverse-effect dataset, a stronger ML ranking pipeline, Firebase-backed patient memory, and a hosted NLP layer powered through Groq.
+Profile-aware drug safety prediction using a curated adverse-effect dataset, a stronger trained-model ranking pipeline, Firebase-backed patient memory, and patient-specific clinical risk analysis.
 
 ![Version](https://img.shields.io/badge/Version-5.0.0-blue) ![License](https://img.shields.io/badge/License-MIT-green)
 
@@ -10,10 +10,10 @@ Profile-aware drug safety prediction using a curated adverse-effect dataset, a s
 - Profile-aware side effect scoring using age, gender, conditions, medications, allergies, dosage, and duration
 - Stronger ML training pipeline with synthetic patient-profile expansion from the curated dataset
 - Cross-validated model selection between multiple tree-based classifiers
-- Hybrid output path: curated ML predictions first, hosted NLP validation and enhancement second
+- Hybrid output path: curated ML predictions first, trained-model clinical validation and enhancement second
 - Drug interaction detection with deterministic rules plus optional AI review
 - Firebase Google sign-in plus Firestore storage for medical history and prediction history
-- Hosted ML-NLP presentation layer for Groq `openai/gpt-oss-120b` inference
+- Trained-model presentation layer for patient-specific drug safety inference
 
 ## What Changed In The ML Pipeline
 

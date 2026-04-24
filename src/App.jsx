@@ -15,6 +15,7 @@ import PredictionResult from './components/PredictionResult';
 import LoginScreen from './components/LoginScreen';
 import HealthProfileSetup from './components/HealthProfileSetup';
 import HistoryPanel from './components/HistoryPanel';
+import BrandLogo from './components/BrandLogo';
 import { auth, googleProvider } from './lib/firebase';
 import {
   ensureUserProfile,
@@ -23,7 +24,6 @@ import {
   saveMedicalProfile,
   savePredictionHistory,
 } from './lib/userStore';
-import { isGroqConfigured, predictWithGroq } from './lib/groqService';
 
 function resolveApiUrl() {
   const configuredUrl = import.meta.env.VITE_API_URL?.trim();
@@ -220,6 +220,12 @@ function App() {
     setError(null);
     setResult(null);
 
+    if (!API_URL) {
+      setError('Prediction backend is not configured. Set VITE_API_URL to the deployed NIROG trained-model backend.');
+      setIsLoading(false);
+      return;
+    }
+
     // Merge saved health profile into the prediction payload
     const mergedData = {
       ...data,
@@ -244,31 +250,21 @@ function App() {
     let responseData = null;
 
     try {
-      // Try the backend first if configured
-      if (API_URL) {
-        try {
-          const response = await axios.post(`${API_URL}/predict`, {
-            ...mergedData,
-            use_ai_enhancement: true,
-          });
-          responseData = response.data;
-        } catch (backendError) {
-          console.warn('Backend unavailable, falling back to Groq:', backendError.message);
-        }
-      }
-
-      // Fall back to direct Groq API call
-      if (!responseData) {
-        if (!isGroqConfigured()) {
-          throw new Error('No prediction backend or Groq API key configured. Set VITE_API_URL or VITE_GROQ_API_KEY.');
-        }
-        responseData = await predictWithGroq(mergedData);
-      }
-
+      const response = await axios.post(`${API_URL}/predict`, {
+        ...mergedData,
+        use_ai_enhancement: true,
+      });
+      responseData = response.data;
       setResult(responseData);
     } catch (requestError) {
       console.error(requestError);
-      setError(requestError.message || 'Failed to get prediction.');
+      if (requestError.response?.data?.detail) {
+        setError(requestError.response.data.detail);
+      } else if (requestError.code === 'ERR_NETWORK') {
+        setError(`Could not reach the NIROG trained-model backend at ${API_URL}. Make sure the backend is running and accessible from this frontend.`);
+      } else {
+        setError('Failed to get prediction from the NIROG trained-model backend.');
+      }
       return;
     } finally {
       setIsLoading(false);
@@ -378,6 +374,7 @@ function App() {
       <div className="relative z-10 max-w-6xl mx-auto px-6 py-12 flex flex-col items-center gap-6">
         {/* Top bar: branding + signed-in user + sign out */}
         <header className="w-full flex flex-col items-center gap-4 mb-2">
+          <BrandLogo size="md" />
           <motion.h1
             initial={{ opacity: 0, y: -30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -483,7 +480,7 @@ function App() {
                     </span>
                     <span className="flex items-center gap-1 text-cyan-300">
                       <Brain className="w-4 h-4" />
-                      {result.analysis_engine || (result.ai_enhanced ? 'NIROG Hosted ML-NLP' : 'NIROG Profile Ranker')}
+                      {result.analysis_engine || 'NIROG Trained Model'}
                     </span>
                   </motion.div>
                 )}

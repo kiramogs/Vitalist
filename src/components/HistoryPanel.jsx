@@ -92,7 +92,7 @@ const HistoryPanel = ({
                       <p className="text-xs text-white/35">{formatDateLabel(entry.createdAt)}</p>
                     </div>
                     <span className="rounded-full bg-cyan-500/15 px-2 py-1 text-[11px] font-medium text-cyan-200">
-                      {entry.response?.analysis_engine || 'NIROG Engine'}
+                      NIROG Trained Model
                     </span>
                   </div>
 

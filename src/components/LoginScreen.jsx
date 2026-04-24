@@ -2,6 +2,8 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { LogIn, Loader2 } from 'lucide-react';
 
+import BrandLogo from './BrandLogo';
+
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
@@ -27,12 +29,8 @@ const LoginScreen = ({ onSignIn, isSigningIn, error }) => {
         className="relative z-10 w-full max-w-md flex flex-col items-center gap-8"
       >
         {/* Brand */}
-        <motion.div variants={itemVariants} className="text-center">
-          <h1 className="text-6xl md:text-7xl font-bold tracking-tight">
-            <span className="bg-gradient-to-r from-purple-200 via-cyan-200 to-purple-200 bg-clip-text text-transparent">
-              NIROG
-            </span>
-          </h1>
+        <motion.div variants={itemVariants} className="text-center flex flex-col items-center">
+          <BrandLogo size="lg" />
           <p className="mt-4 text-sm md:text-base text-white/50 tracking-[0.25em] uppercase">
             Drug Safety Intelligence
           </p>

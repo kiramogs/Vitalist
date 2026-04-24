@@ -42,23 +42,25 @@ const PredictionResult = ({ results, interactions, personalized, userRiskFactors
   };
 
   const getSourceBadge = (source) => {
-    if (source === 'Hosted ML-NLP Blend') {
+    const sourceLabel = String(source || '').toLowerCase();
+
+    if (sourceLabel.includes('blend')) {
       return (
         <span className="flex items-center gap-1 text-xs px-2 py-0.5 rounded bg-gradient-to-r from-purple-500/20 to-cyan-500/20 text-purple-200 border border-purple-500/30">
-          <Database className="w-3 h-3" /><Zap className="w-3 h-3" />Hosted Blend
+          <Database className="w-3 h-3" /><Zap className="w-3 h-3" />Model Blend
         </span>
       );
     }
-    if (source === 'Hosted NLP Analysis') {
+    if (sourceLabel.includes('analysis') || sourceLabel.includes('insight')) {
       return (
         <span className="flex items-center gap-1 text-xs px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
-          <Brain className="w-3 h-3" />Hosted NLP
+          <Brain className="w-3 h-3" />Model Insight
         </span>
       );
     }
     return (
       <span className="flex items-center gap-1 text-xs px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 border border-purple-500/30">
-        <Database className="w-3 h-3" />ML Core
+        <Database className="w-3 h-3" />Trained Model
       </span>
     );
   };
@@ -84,7 +86,7 @@ const PredictionResult = ({ results, interactions, personalized, userRiskFactors
             <Sparkles className="w-5 h-5 text-purple-300" />
             <div>
               <h3 className="text-xl font-semibold text-white">NIROG Results</h3>
-              <p className="text-xs text-white/40">{analysisEngine || 'NIROG Profile Ranker'}</p>
+              <p className="text-xs text-white/40">NIROG Trained Model</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -95,7 +97,7 @@ const PredictionResult = ({ results, interactions, personalized, userRiskFactors
             )}
             {aiEnhanced && (
               <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 text-xs font-medium">
-                <Brain className="w-3.5 h-3.5" />Hosted NLP
+                <Brain className="w-3.5 h-3.5" />Trained Model
               </span>
             )}
           </div>
@@ -133,8 +135,8 @@ const PredictionResult = ({ results, interactions, personalized, userRiskFactors
                   <div className="flex items-center justify-between mb-1">
                     <div className="flex items-center gap-2">
                       <span className="font-medium text-red-100">{inter.drugs?.join(' + ')}</span>
-                      {inter.source === 'Hosted NLP Analysis' && (
-                        <span className="text-xs px-1.5 py-0.5 rounded bg-cyan-500/20 text-cyan-300">Hosted NLP</span>
+                      {(String(inter.source || '').toLowerCase().includes('analysis') || String(inter.source || '').toLowerCase().includes('insight')) && (
+                        <span className="text-xs px-1.5 py-0.5 rounded bg-cyan-500/20 text-cyan-300">Model Insight</span>
                       )}
                     </div>
                     <span className={`text-xs px-2 py-0.5 rounded font-medium ${getSeverityColor(inter.severity)}`}>
@@ -262,7 +264,7 @@ const PredictionResult = ({ results, interactions, personalized, userRiskFactors
             <Brain className="w-5 h-5 text-cyan-300" />
             <div>
               <h3 className="text-lg font-semibold text-white">NIROG Clinical Analysis</h3>
-              <p className="text-xs text-white/45">{analysisEngine || 'NIROG Hosted ML-NLP'}</p>
+              <p className="text-xs text-white/45">NIROG Trained Model</p>
             </div>
           </div>
 

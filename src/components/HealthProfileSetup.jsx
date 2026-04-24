@@ -14,6 +14,8 @@ import {
   Loader2,
 } from 'lucide-react';
 
+import BrandLogo from './BrandLogo';
+
 const MEDICAL_CONDITIONS = [
   'Diabetes', 'Heart Disease', 'Kidney Disease', 'Liver Disease',
   'Asthma', 'COPD', 'Hypertension', 'Depression', 'Anxiety',
@@ -108,7 +110,8 @@ const HealthProfileSetup = ({ user, onComplete, onCancel, isSaving, initialProfi
         className="relative z-10 w-full max-w-2xl flex flex-col items-center gap-6"
       >
         {/* Header */}
-        <motion.div variants={itemVariants} className="text-center">
+        <motion.div variants={itemVariants} className="text-center flex flex-col items-center">
+          <BrandLogo size="sm" className="mb-5" />
           <h1 className="text-4xl md:text-5xl font-bold tracking-tight">
             <span className="bg-gradient-to-r from-purple-200 via-cyan-200 to-purple-200 bg-clip-text text-transparent">
               {isEditing ? 'Edit Your Profile' : 'Set Up Your Profile'}

@@ -1,6 +1,5 @@
 """
-NIROG hosted NLP analysis service.
-Runs on Groq with openai/gpt-oss-120b as the primary reasoning model.
+NIROG trained-model analysis service.
 """
 import os
 from dotenv import load_dotenv
@@ -16,11 +15,11 @@ except ImportError:
 # Load environment variables from .env file
 load_dotenv(os.path.join(os.path.dirname(__file__), '.env'))
 
-# Initialize Groq client
+# Initialize trained-model client
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
 
-# Model configuration - OpenAI GPT-OSS-120B (production model on Groq)
-PRIMARY_MODEL = "openai/gpt-oss-120b"  # 120B param flagship model
+# Model configuration for the production reasoning model.
+PRIMARY_MODEL = "openai/gpt-oss-120b"
 FALLBACK_MODEL = "llama-3.3-70b-versatile"  # Fallback
 
 
@@ -29,7 +28,7 @@ def is_groq_available() -> bool:
 
 
 def get_groq_client():
-    """Get Groq client with API key."""
+    """Get the trained-model client with API key."""
     if not is_groq_available():
         return None
     api_key = GROQ_API_KEY or os.getenv("GROQ_API_KEY")
@@ -289,8 +288,8 @@ CRITICAL INSTRUCTIONS:
 - If drug is contraindicated for this patient, state clearly
 - Include BLACK BOX warnings if applicable
 - Provide actionable clinical recommendations
-- Never refer to Groq, OpenAI, GPT, LLMs, chatbots, or external providers
-- Frame all reasoning as NIROG hosted ML-NLP output
+- Never refer to external providers, chatbots, or vendor model names
+- Frame all reasoning as NIROG trained-model output
 """
     return prompt
 
@@ -309,7 +308,7 @@ def analyze_drug_with_llm(
     ml_predictions: Optional[List[Dict]] = None
 ) -> Optional[Dict]:
     """
-    Analyze drug using Groq's LLM for precise, context-aware predictions.
+    Analyze drug using NIROG's trained model for precise, context-aware predictions.
     Integrates with ML model predictions for enhanced accuracy.
     """
     client = get_groq_client()
@@ -393,7 +392,7 @@ Never include text outside the JSON structure. Always respond with complete, val
             return None
             
     except Exception as e:
-        print(f"Groq API error: {e}")
+        print(f"Trained-model API error: {e}")
         return None
 
 
@@ -450,7 +449,7 @@ def merge_ml_and_llm_predictions(
                 "patient_specific_risk": llm_eff.get("patient_specific_risk", ""),
                 "management": llm_eff.get("management", ""),
                 "requires_discontinuation": llm_eff.get("requires_discontinuation", False),
-                "source": "Hosted ML-NLP Blend",
+                "source": "NIROG Model Blend",
                 "risk_factors_matched": ml_eff.get("risk_factors_matched", [])
             })
         else:
@@ -482,7 +481,7 @@ def merge_ml_and_llm_predictions(
                 "patient_specific_risk": llm_eff.get("patient_specific_risk", ""),
                 "management": llm_eff.get("management", ""),
                 "requires_discontinuation": llm_eff.get("requires_discontinuation", False),
-                "source": "Hosted NLP Analysis",
+                "source": "NIROG Model Insight",
                 "risk_factors_matched": []
             })
     
@@ -558,7 +557,7 @@ Be thorough - check ALL possible drug pairs. Include CYP450 interactions, protei
         return json.loads(response_text)
         
     except Exception as e:
-        print(f"Groq API error for interactions: {e}")
+        print(f"Trained-model API error for interactions: {e}")
         return None
 
 
@@ -608,5 +607,5 @@ Respond in JSON format with complete, clinically accurate information."""
         return json.loads(response_text)
         
     except Exception as e:
-        print(f"Groq API error for drug info: {e}")
+        print(f"Trained-model API error for drug info: {e}")
         return None

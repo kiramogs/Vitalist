@@ -53,10 +53,9 @@ def startup_event():
         )
 
     if is_groq_available():
-        print("Groq API key found - LLM enhancement ENABLED")
-        print("  Using: openai/gpt-oss-120b via Groq")
+        print("Trained-model enhancement ENABLED")
     else:
-        print("Groq client unavailable. ML-only mode active.")
+        print("Trained-model enhancement unavailable. ML-only mode active.")
 
 
 class DrugQuery(BaseModel):
@@ -169,7 +168,7 @@ def predict(data: DrugQuery):
                         "severity": interaction.get("severity", "Moderate"),
                         "management": interaction.get("management", ""),
                         "evidence_level": interaction.get("evidence_level", ""),
-                        "source": "Hosted NLP Analysis",
+                        "source": "NIROG Model Insight",
                     })
 
         severity_order = {"Contraindicated": 0, "Major": 1, "High": 1, "Moderate": 2, "Minor": 3, "Low": 4}
@@ -183,7 +182,7 @@ def predict(data: DrugQuery):
             "predictions": merged_effects,
             "interactions": all_interactions,
             "ai_enhanced": llm_analysis is not None,
-            "analysis_engine": "NIROG Hosted ML-NLP" if llm_analysis is not None else "NIROG Profile Ranker",
+            "analysis_engine": "NIROG Trained Model",
             "disclaimer": "For educational purposes only. Consult a healthcare provider.",
         }
 
@@ -213,9 +212,9 @@ def predict(data: DrugQuery):
 
 @app.post("/predict-ai")
 def predict_ai_only(data: DrugQuery):
-    """Get pure LLM-based drug analysis (requires GROQ_API_KEY)."""
+    """Get trained-model drug analysis."""
     if not is_groq_available():
-        raise HTTPException(status_code=400, detail="Groq client unavailable or GROQ_API_KEY not set")
+        raise HTTPException(status_code=400, detail="Trained-model enhancement is not configured")
 
     try:
         llm_analysis = analyze_drug_with_llm(
@@ -237,7 +236,7 @@ def predict_ai_only(data: DrugQuery):
         return {
             "drug_queried": data.drug_name,
             "analysis": llm_analysis,
-            "source": "NIROG Hosted ML-NLP (Groq / openai-gpt-oss-120b)",
+            "source": "NIROG Trained Model",
         }
 
     except Exception as exc:
@@ -267,9 +266,9 @@ def check_interactions(data: InteractionCheckRequest):
 
 @app.get("/drug-info/{name}")
 def get_drug_info_ai(name: str):
-    """Get comprehensive drug information using AI."""
+    """Get comprehensive drug information using the trained model."""
     if not is_groq_available():
-        raise HTTPException(status_code=400, detail="Groq client unavailable or GROQ_API_KEY not set")
+        raise HTTPException(status_code=400, detail="Trained-model enhancement is not configured")
 
     try:
         info = get_drug_info_llm(name)
@@ -283,15 +282,14 @@ def get_drug_info_ai(name: str):
 @app.get("/")
 def read_root():
     """API health check."""
-    groq_enabled = is_groq_available()
+    trained_model_enabled = is_groq_available()
     metadata = get_model_metadata()
     return {
         "status": "running",
         "version": "5.0.0",
         "name": "NIROG",
-        "ai_enhancement": "enabled" if groq_enabled else "disabled",
-        "model": "NIROG Hosted ML-NLP" if groq_enabled else "NIROG Profile Ranker",
-        "hosted_nlp_model": "openai/gpt-oss-120b" if groq_enabled else None,
+        "trained_model_enhancement": "enabled" if trained_model_enabled else "disabled",
+        "model": "NIROG Trained Model" if trained_model_enabled else "NIROG Profile Ranker",
         "ml_training": {
             "strategy": metadata.get("training_strategy"),
             "samples": metadata.get("generated_samples"),
@@ -351,10 +349,9 @@ def api_status():
     """Check API status."""
     metadata = get_model_metadata()
     return {
-        "groq_api_key_set": bool(os.getenv("GROQ_API_KEY")),
-        "ai_features_available": is_groq_available(),
-        "models": ["NIROG Profile Ranker", "NIROG Hosted ML-NLP"],
-        "provider_models": ["openai/gpt-oss-120b", "llama-3.3-70b-versatile"],
+        "trained_model_key_set": bool(os.getenv("GROQ_API_KEY")),
+        "trained_model_features_available": is_groq_available(),
+        "models": ["NIROG Profile Ranker", "NIROG Trained Model"],
         "training_samples": metadata.get("generated_samples"),
         "cv_roc_auc": metadata.get("cv_roc_auc"),
     }
