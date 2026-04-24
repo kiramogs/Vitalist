@@ -83,9 +83,9 @@ const HistoryPanel = ({
           ) : history.length === 0 ? (
             <p className="text-sm text-white/50">No saved analyses yet.</p>
           ) : (
-            <div className="space-y-3">
+            <div className="ledger-scroll max-h-[13rem] snap-y snap-mandatory space-y-3 overflow-y-auto overscroll-contain py-3 pr-2">
               {history.map((entry) => (
-                <div key={entry.id} className="rounded-2xl border border-white/10 bg-white/5 p-3">
+                <div key={entry.id} className="min-h-[10.75rem] snap-center rounded-2xl border border-white/10 bg-white/5 p-3">
                   <div className="mb-2 flex items-center justify-between gap-3">
                     <div>
                       <p className="font-medium text-white">{entry.request?.drug_name || 'Unnamed analysis'}</p>
