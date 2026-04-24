@@ -4,11 +4,29 @@ import { Html, OrbitControls, useGLTF } from '@react-three/drei';
 import { motion } from 'framer-motion';
 
 const MODEL_PATHS = {
-  male: '/models/male_body.glb',
-  female: '/models/female_body.glb',
+  male: '/models/male_body.glb?v=20260424-layout',
+  female: '/models/female_body.glb?v=20260424-layout',
 };
 
 const preloadedModels = new Set();
+const LABEL_SLOTS = {
+  left: [
+    [-0.76, 0.42, 0.44],
+    [-0.76, 0.27, 0.44],
+    [-0.76, 0.12, 0.44],
+    [-0.76, -0.03, 0.44],
+    [-0.76, -0.18, 0.44],
+    [-0.76, -0.33, 0.44],
+  ],
+  right: [
+    [0.76, 0.42, 0.44],
+    [0.76, 0.27, 0.44],
+    [0.76, 0.12, 0.44],
+    [0.76, -0.03, 0.44],
+    [0.76, -0.18, 0.44],
+    [0.76, -0.33, 0.44],
+  ],
+};
 
 function getModelPath(gender) {
   return String(gender || '').toLowerCase() === 'female' ? MODEL_PATHS.female : MODEL_PATHS.male;
@@ -134,32 +152,119 @@ function getSeverityRank(value) {
   return SEVERITY_RANK[String(value || '').toLowerCase()] || 1;
 }
 
-function getEffectText(item) {
-  return [
-    item?.side_effect,
-    item?.mechanism,
-    item?.patient_specific_risk,
-    item?.management,
-  ]
-    .filter(Boolean)
-    .join(' ')
-    .toLowerCase();
+function getTextParts(item) {
+  return {
+    sideEffect: String(item?.side_effect || '').toLowerCase(),
+    mechanism: String(item?.mechanism || '').toLowerCase(),
+    risk: String(item?.patient_specific_risk || '').toLowerCase(),
+    management: String(item?.management || '').toLowerCase(),
+  };
+}
+
+function getRegionScore(region, textParts) {
+  return region.keywords.reduce((score, keyword) => {
+    const normalizedKeyword = keyword.toLowerCase();
+    return (
+      score
+      + (textParts.sideEffect.includes(normalizedKeyword) ? 8 : 0)
+      + (textParts.risk.includes(normalizedKeyword) ? 4 : 0)
+      + (textParts.mechanism.includes(normalizedKeyword) ? 3 : 0)
+      + (textParts.management.includes(normalizedKeyword) ? 1 : 0)
+    );
+  }, 0);
+}
+
+function findBestRegion(item) {
+  const textParts = getTextParts(item);
+  let bestMatch = null;
+
+  Object.entries(BODY_REGIONS).forEach(([regionKey, region]) => {
+    const regionScore = getRegionScore(region, textParts);
+    if (!regionScore || (bestMatch && regionScore <= bestMatch.regionScore)) {
+      return;
+    }
+
+    bestMatch = { regionKey, region, regionScore };
+  });
+
+  return bestMatch;
+}
+
+function conciseEffectName(effect, regionLabel) {
+  const regionWords = regionLabel
+    .toLowerCase()
+    .split(/\s+|\band\b/)
+    .map((word) => word.trim())
+    .filter((word) => word.length > 3);
+
+  let compact = String(effect || regionLabel)
+    .replace(/\s+/g, ' ')
+    .replace(/\bliver enzyme elevation\b/gi, 'enzyme elevation')
+    .replace(/\brenal function alteration\s*\(reduced gfr\)/gi, 'reduced GFR')
+    .replace(/\breduced glomerular filtration rate\b/gi, 'reduced GFR')
+    .replace(/\bfunction alteration\b/gi, 'altered function')
+    .replace(/\bhepatotoxicity\b/gi, 'liver toxicity')
+    .trim();
+
+  regionWords.forEach((word) => {
+    compact = compact.replace(new RegExp(`^${word}\\s+`, 'i'), '');
+  });
+
+  if (compact.length <= 34) {
+    return compact;
+  }
+
+  const trimmed = compact.slice(0, 31);
+  const lastSpace = trimmed.lastIndexOf(' ');
+  return `${trimmed.slice(0, lastSpace > 18 ? lastSpace : 31)}...`;
+}
+
+function getPreferredSide(marker) {
+  return marker.region.position[0] < 0 || marker.region.labelPosition[0] < 0 ? 'left' : 'right';
+}
+
+function claimClosestSlot(side, markerY, usedSlots) {
+  const availableSlots = LABEL_SLOTS[side]
+    .map((slot, index) => ({ slot, index, distance: Math.abs(slot[1] - markerY) }))
+    .filter(({ index }) => !usedSlots[side].has(index))
+    .sort((first, second) => first.distance - second.distance);
+
+  const selected = availableSlots[0] || { slot: LABEL_SLOTS[side][LABEL_SLOTS[side].length - 1], index: LABEL_SLOTS[side].length - 1 };
+  usedSlots[side].add(selected.index);
+  return selected.slot;
+}
+
+function assignLabelSlots(markers) {
+  const usedSlots = { left: new Set(), right: new Set() };
+
+  return markers.map((marker) => {
+    const preferredSide = getPreferredSide(marker);
+    const alternateSide = preferredSide === 'left' ? 'right' : 'left';
+    const side =
+      usedSlots[preferredSide].size <= usedSlots[alternateSide].size
+        ? preferredSide
+        : alternateSide;
+    const labelPosition = claimClosestSlot(side, marker.region.position[1], usedSlots);
+
+    return {
+      ...marker,
+      labelPosition,
+      compactEffect: conciseEffectName(marker.primaryEffect, marker.region.label),
+    };
+  });
 }
 
 function mapPredictionsToRegions(predictions = []) {
   const regionMap = new Map();
 
   predictions.forEach((item) => {
-    const text = getEffectText(item);
-    const matchedRegion = Object.entries(BODY_REGIONS).find(([, region]) =>
-      region.keywords.some((keyword) => text.includes(keyword)),
-    );
+    const matchedRegion = findBestRegion(item);
 
     if (!matchedRegion) {
       return;
     }
 
-    const [regionKey, region] = matchedRegion;
+    const { regionKey, region } = matchedRegion;
     const current = regionMap.get(regionKey);
     const candidate = {
       key: regionKey,
@@ -220,7 +325,7 @@ function MarkerLine({ start, end }) {
 
 function AreaMarker({ marker }) {
   const { region } = marker;
-  const label = `${region.label}: ${marker.primaryEffect}${marker.count > 1 ? ` +${marker.count - 1}` : ''}`;
+  const label = `${region.label}: ${marker.compactEffect}${marker.count > 1 ? ` +${marker.count - 1}` : ''}`;
 
   return (
     <group>
@@ -232,10 +337,15 @@ function AreaMarker({ marker }) {
         <sphereGeometry args={[0.05, 24, 24]} />
         <meshBasicMaterial color="#5eead4" transparent opacity={0.2} />
       </mesh>
-      <MarkerLine start={region.position} end={region.labelPosition} />
-      <Html position={region.labelPosition} center distanceFactor={3.45}>
-        <div className="pointer-events-none max-w-40 rounded-lg border border-cyan-300/25 bg-black/72 px-2.5 py-1.5 text-left shadow-lg shadow-black/35 backdrop-blur-md">
-          <p className="text-[10px] font-semibold leading-snug text-cyan-100">{label}</p>
+      <MarkerLine start={region.position} end={marker.labelPosition} />
+      <Html position={marker.labelPosition} center distanceFactor={3.65}>
+        <div className="pointer-events-none w-32 rounded-lg border border-cyan-300/25 bg-black/72 px-2 py-1.5 text-left shadow-lg shadow-black/35 backdrop-blur-md">
+          <p
+            className="overflow-hidden text-[9px] font-semibold leading-tight text-cyan-100"
+            style={{ display: '-webkit-box', WebkitBoxOrient: 'vertical', WebkitLineClamp: 2 }}
+          >
+            {label}
+          </p>
           <p className="mt-0.5 text-[8px] uppercase tracking-[0.14em] text-white/45">
             {marker.severity} | {marker.probability}% risk
           </p>
@@ -247,7 +357,7 @@ function AreaMarker({ marker }) {
 
 const BodyImpactViewer = ({ gender, predictions }) => {
   const normalizedGender = String(gender || '').toLowerCase() === 'female' ? 'female' : 'male';
-  const markers = useMemo(() => mapPredictionsToRegions(predictions), [predictions]);
+  const markers = useMemo(() => assignLabelSlots(mapPredictionsToRegions(predictions)), [predictions]);
 
   return (
     <motion.section
@@ -269,7 +379,7 @@ const BodyImpactViewer = ({ gender, predictions }) => {
             No specific body region mapped for this result.
           </div>
         )}
-        <Canvas camera={{ position: [0, 0.2, 3.1], fov: 38 }} dpr={[1, 1.6]}>
+        <Canvas camera={{ position: [0, 0.2, 3.1], fov: 38 }} dpr={[1, 1.6]} frameloop="demand">
           <color attach="background" args={['#071111']} />
           <ambientLight intensity={1.5} />
           <directionalLight position={[2, 3, 4]} intensity={2.2} />
